@@ -1,6 +1,15 @@
+finesi/app/andromeda/dao/QueryBuilder$Condition.class
 finesi/app/andromeda/resources/JakartaEE11Resource.class
+finesi/app/andromeda/controlador/HomeController.class
 finesi/app/andromeda/conexion/ConexionDB.class
-finesi/app/andromeda/controlador/AlumnoController.class
+finesi/app/andromeda/controlador/EditarAlumnoController.class
+finesi/app/andromeda/modelo/Area.class
+finesi/app/andromeda/controlador/LogoutController.class
 finesi/app/andromeda/modelo/Alumno.class
 finesi/app/andromeda/JakartaRestConfiguration.class
 finesi/app/andromeda/dao/AlumnoDAO.class
+finesi/app/andromeda/controlador/RegistroController.class
+finesi/app/andromeda/controlador/EliminarAlumnoController.class
+finesi/app/andromeda/controlador/AlumnoController.class
+finesi/app/andromeda/controlador/LoginController.class
+finesi/app/andromeda/dao/QueryBuilder.class

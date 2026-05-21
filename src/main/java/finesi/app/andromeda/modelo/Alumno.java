@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 /**
  * Clase Modelo (POJO) para la tabla Alumno.
- * Su única responsabilidad es almacenar y transportar datos.
+ * Refactorizada para soportar el flujo completo de matrícula y certificado.
  */
 public class Alumno {
 
@@ -24,12 +24,24 @@ public class Alumno {
     private String ubigeoDomicilio;
     private Integer idGrado;
     private Integer idSeccion;
+    
+    // Variables para el flujo de inscripción
+    private Integer idCarrera;
+    private Integer idPeriodo;
+    private String ciclo;
+    private String area;
+    
+    // Nombres legibles para imprimir en el PDF del certificado
+    private String nombreGrado;
+    private String nombreCarrera;
+    private String nombreArea;
+    private String nombrePeriodo;
 
-    // Constructor vacío (Obligatorio para que Java pueda instanciar la clase dinámicamente)
+    // Constructor vacío
     public Alumno() {
     }
 
-    // Constructor completo (Útil para crear objetos Alumno rápidamente en una sola línea)
+    // Constructor completo
     public Alumno(Long idAlumno, String numDocumento, String nombres, String apPaterno, String apMaterno, LocalDate fechaNacimiento, String celular, String correo, String ubigeoNacimiento, String ubigeoDomicilio, Integer idGrado, Integer idSeccion) {
         this.idAlumno = idAlumno;
         this.numDocumento = numDocumento;
@@ -49,99 +61,63 @@ public class Alumno {
     // GETTERS Y SETTERS
     // ==========================================
 
-    public Long getIdAlumno() {
-        return idAlumno;
-    }
+    public Long getIdAlumno() { return idAlumno; }
+    public void setIdAlumno(Long idAlumno) { this.idAlumno = idAlumno; }
 
-    public void setIdAlumno(Long idAlumno) {
-        this.idAlumno = idAlumno;
-    }
+    public String getNumDocumento() { return numDocumento; }
+    public void setNumDocumento(String numDocumento) { this.numDocumento = numDocumento; }
 
-    public String getNumDocumento() {
-        return numDocumento;
-    }
+    public String getNombres() { return nombres; }
+    public void setNombres(String nombres) { this.nombres = nombres; }
 
-    public void setNumDocumento(String numDocumento) {
-        this.numDocumento = numDocumento;
-    }
+    public String getApPaterno() { return apPaterno; }
+    public void setApPaterno(String apPaterno) { this.apPaterno = apPaterno; }
 
-    public String getNombres() {
-        return nombres;
-    }
+    public String getApMaterno() { return apMaterno; }
+    public void setApMaterno(String apMaterno) { this.apMaterno = apMaterno; }
 
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    public String getApPaterno() {
-        return apPaterno;
-    }
+    public String getCelular() { return celular; }
+    public void setCelular(String celular) { this.celular = celular; }
 
-    public void setApPaterno(String apPaterno) {
-        this.apPaterno = apPaterno;
-    }
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
 
-    public String getApMaterno() {
-        return apMaterno;
-    }
+    public String getUbigeoNacimiento() { return ubigeoNacimiento; }
+    public void setUbigeoNacimiento(String ubigeoNacimiento) { this.ubigeoNacimiento = ubigeoNacimiento; }
 
-    public void setApMaterno(String apMaterno) {
-        this.apMaterno = apMaterno;
-    }
+    public String getUbigeoDomicilio() { return ubigeoDomicilio; }
+    public void setUbigeoDomicilio(String ubigeoDomicilio) { this.ubigeoDomicilio = ubigeoDomicilio; }
 
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
+    public Integer getIdGrado() { return idGrado; }
+    public void setIdGrado(Integer idGrado) { this.idGrado = idGrado; }
 
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
+    public Integer getIdSeccion() { return idSeccion; }
+    public void setIdSeccion(Integer idSeccion) { this.idSeccion = idSeccion; }
+    
+    public Integer getIdCarrera() { return idCarrera; }
+    public void setIdCarrera(Integer idCarrera) { this.idCarrera = idCarrera; }
+    
+    public Integer getIdPeriodo() { return idPeriodo; }
+    public void setIdPeriodo(Integer idPeriodo) { this.idPeriodo = idPeriodo; }
 
-    public String getCelular() {
-        return celular;
-    }
+    public String getCiclo() { return ciclo; }
+    public void setCiclo(String ciclo) { this.ciclo = ciclo; }
 
-    public void setCelular(String celular) {
-        this.celular = celular;
-    }
+    public String getArea() { return area; }
+    public void setArea(String area) { this.area = area; }
 
-    public String getCorreo() {
-        return correo;
-    }
+    public String getNombreGrado() { return nombreGrado; }
+    public void setNombreGrado(String nombreGrado) { this.nombreGrado = nombreGrado; }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
+    public String getNombreCarrera() { return nombreCarrera; }
+    public void setNombreCarrera(String nombreCarrera) { this.nombreCarrera = nombreCarrera; }
 
-    public String getUbigeoNacimiento() {
-        return ubigeoNacimiento;
-    }
+    public String getNombreArea() { return nombreArea; }
+    public void setNombreArea(String nombreArea) { this.nombreArea = nombreArea; }
 
-    public void setUbigeoNacimiento(String ubigeoNacimiento) {
-        this.ubigeoNacimiento = ubigeoNacimiento;
-    }
-
-    public String getUbigeoDomicilio() {
-        return ubigeoDomicilio;
-    }
-
-    public void setUbigeoDomicilio(String ubigeoDomicilio) {
-        this.ubigeoDomicilio = ubigeoDomicilio;
-    }
-
-    public Integer getIdGrado() {
-        return idGrado;
-    }
-
-    public void setIdGrado(Integer idGrado) {
-        this.idGrado = idGrado;
-    }
-
-    public Integer getIdSeccion() {
-        return idSeccion;
-    }
-
-    public void setIdSeccion(Integer idSeccion) {
-        this.idSeccion = idSeccion;
-    }
+    public String getNombrePeriodo() { return nombrePeriodo; }
+    public void setNombrePeriodo(String nombrePeriodo) { this.nombrePeriodo = nombrePeriodo; }
 }

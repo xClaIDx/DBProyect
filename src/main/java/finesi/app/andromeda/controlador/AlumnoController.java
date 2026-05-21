@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -30,25 +31,55 @@ public class AlumnoController extends HttpServlet {
     /**
      * Maneja las peticiones de tipo GET (Cuando el usuario entra a la pagina o recarga).
      * Su objetivo es extraer los datos y enviarlos a la vista.
+     * @param request
+     * @param response
+     * @throws jakarta.servlet.ServletException
+     * @throws java.io.IOException
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Obtenemos la lista de alumnos desde PostgreSQL a traves del DAO
+        // =========================================================
+        // BARRERA DE SEGURIDAD (Validación de Sesión)
+        // =========================================================
+        HttpSession sesion = request.getSession(false); // false = No crear una nueva si no existe
+        
+        if (sesion == null || sesion.getAttribute("adminLogueado") == null) {
+            // Si no tiene el "Gafete VIP", lo pateamos de vuelta a la página principal
+            response.sendRedirect(request.getContextPath() + "/?estado=requiere_login");
+            return; // DETENEMOS LA EJECUCIÓN AQUÍ, MUY IMPORTANTE
+        }
+        // =========================================================
+
+        // ... A partir de aquí, tu código sigue exactamente igual ...
+        
+        // 1. Obtenemos la lista de alumnos desde PostgreSQL
+        // =========================================================
+        // (Tu código de seguridad de sesión sigue igual aquí arriba)
+        // =========================================================
+
+        // 1. Obtenemos la lista de alumnos desde PostgreSQL
         List<Alumno> lista = alumnoDAO.listarAlumnos();
         
-        // 2. Guardamos la lista en la peticion (request) con la etiqueta "listaAlumnos"
-        // para que la pagina web (JSP) pueda leerla e imprimirla en una tabla.
-        request.setAttribute("listaAlumnos", lista);
+        // 2. Obtenemos nuestras métricas (KPIs)
+        int totalAlumnos = alumnoDAO.obtenerTotalAlumnos();
         
-        // 3. Redirigimos (despachamos) la peticion hacia nuestro archivo visual (alumnos.jsp)
+        // 3. Guardamos TODO en la petición (request) para que la vista lo use
+        request.setAttribute("listaAlumnos", lista);
+        request.setAttribute("totalRegistrados", totalAlumnos); // <- Nueva variable inyectada
+        
+        // 4. Redirigimos al archivo visual (alumnos.jsp)
         request.getRequestDispatcher("alumnos.jsp").forward(request, response);
     }
 
     /**
      * Maneja las peticiones de tipo POST (Cuando el usuario hace clic en "Guardar" en el formulario).
      * Su objetivo es recibir los textos, armar el objeto y mandarlo a guardar.
+     * @param request
+     * @param response
+     * @throws jakarta.servlet.ServletException
+     * @throws java.io.IOException
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

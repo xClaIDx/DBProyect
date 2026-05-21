@@ -1,6 +1,14 @@
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/JakartaRestConfiguration.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/conexion/ConexionDB.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/AlumnoController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/EditarAlumnoController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/EliminarAlumnoController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/HomeController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/LoginController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/LogoutController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/RegistroController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/AlumnoDAO.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/QueryBuilder.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Alumno.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Area.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/resources/JakartaEE11Resource.java
