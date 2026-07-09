@@ -303,8 +303,38 @@ public class AlumnoDAO {
         return total;
     }
 
+    /**
+     * Registra un alumno directamente desde el panel de administración.
+     * Mapea de forma segura los parámetros usando PreparedStatements.
+     * @param nuevoAlumno Objeto con la información recolectada del formulario
+     * @return true si se guardó con éxito, false en caso de excepción
+     */
     public boolean registrarAlumno(Alumno nuevoAlumno) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        String sql = "INSERT INTO public.alumno (num_documento, nombres, ap_paterno, ap_materno, fecha_nacimiento, celular, correo, id_grado, id_seccion) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (Connection con = ConexionDB.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, nuevoAlumno.getNumDocumento());
+            ps.setString(2, nuevoAlumno.getNombres());
+            ps.setString(3, nuevoAlumno.getApPaterno());
+            ps.setString(4, nuevoAlumno.getApMaterno());
+            ps.setDate(5, java.sql.Date.valueOf(nuevoAlumno.getFechaNacimiento()));
+            ps.setString(6, nuevoAlumno.getCelular());
+            ps.setString(7, nuevoAlumno.getCorreo());
+            
+            // Validaciones para prevenir conflictos con enteros nulables
+            if (nuevoAlumno.getIdGrado() != null) ps.setInt(8, nuevoAlumno.getIdGrado()); else ps.setNull(8, java.sql.Types.INTEGER);
+            if (nuevoAlumno.getIdSeccion() != null) ps.setInt(9, nuevoAlumno.getIdSeccion()); else ps.setNull(9, java.sql.Types.INTEGER);
+            
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+            
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "[ERROR CRÍTICO] Fallo de persistencia al registrar alumno desde panel", e);
+            return false;
+        }
     }
     
     

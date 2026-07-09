@@ -10,6 +10,8 @@
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/RegistroController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/AlumnoDAO.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/QueryBuilder.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/UsuarioDAO.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Alumno.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Area.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Usuario.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/resources/JakartaEE11Resource.java
