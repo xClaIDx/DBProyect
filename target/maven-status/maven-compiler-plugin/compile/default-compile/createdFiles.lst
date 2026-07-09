@@ -9,6 +9,7 @@ finesi/app/andromeda/modelo/Alumno.class
 finesi/app/andromeda/JakartaRestConfiguration.class
 finesi/app/andromeda/dao/AlumnoDAO.class
 finesi/app/andromeda/controlador/RegistroController.class
+finesi/app/andromeda/controlador/CertificadoServlet.class
 finesi/app/andromeda/controlador/EliminarAlumnoController.class
 finesi/app/andromeda/controlador/AlumnoController.class
 finesi/app/andromeda/controlador/LoginController.class

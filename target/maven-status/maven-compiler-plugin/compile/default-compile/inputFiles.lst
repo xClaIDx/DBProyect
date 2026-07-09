@@ -1,6 +1,7 @@
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/JakartaRestConfiguration.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/conexion/ConexionDB.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/AlumnoController.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/CertificadoServlet.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/EditarAlumnoController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/EliminarAlumnoController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/HomeController.java

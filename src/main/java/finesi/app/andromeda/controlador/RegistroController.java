@@ -6,65 +6,75 @@ package finesi.app.andromeda.controlador;
 
 import finesi.app.andromeda.dao.AlumnoDAO;
 import finesi.app.andromeda.modelo.Alumno;
+import java.io.IOException;
+import java.time.LocalDate;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.LocalDate;
 
-/**
- * Controlador de Acceso Público para el Registro de Postulantes.
- * Intercepta las solicitudes POST que vienen desde el Modal en index.jsp.
- */
 @WebServlet(name = "RegistroController", urlPatterns = {"/registro"})
 public class RegistroController extends HttpServlet {
-
-    // Instanciamos el DAO que ya tienes creado
+    
     private final AlumnoDAO alumnoDAO = new AlumnoDAO();
 
-    /**
-     * Solo implementamos doPost porque los datos del formulario 
-     * viajan de forma oculta (método POST por seguridad).
-     * @param request
-     * @param response
-     * @throws jakarta.servlet.ServletException
-     * @throws java.io.IOException
-     */
-    
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        // Redirigimos al inicio si alguien intenta acceder por URL directa
-        response.sendRedirect(request.getContextPath() + "/");
-    }
-    
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+        
+        try {
+            // 1. Recolección exhaustiva de parámetros HTML
+            String numDocumento = request.getParameter("numDocumento");
+            String nombres = request.getParameter("nombres");
+            String apPaterno = request.getParameter("apPaterno");
+            String apMaterno = request.getParameter("apMaterno");
+            String fechaNacRaw = request.getParameter("fechaNacimiento");
+            String celular = request.getParameter("celular");
+            String correo = request.getParameter("correo");
+            String ubigeoNac = request.getParameter("ubigeoNacimiento");
+            String ubigeoDom = request.getParameter("ubigeoDomicilio");
+            
+            int idPeriodo = Integer.parseInt(request.getParameter("idPeriodo"));
+            int idGrado = Integer.parseInt(request.getParameter("idGrado"));
+            int idSeccion = Integer.parseInt(request.getParameter("idSeccion"));
+            int idCarrera = Integer.parseInt(request.getParameter("idCarrera"));
 
-        // 1. Recibimos los nuevos datos
-        Alumno postulante = new Alumno();
-        postulante.setNumDocumento(request.getParameter("numDocumento"));
-        postulante.setNombres(request.getParameter("nombres"));
-        // ... setear el resto de datos ...
-        postulante.setCiclo(request.getParameter("ciclo"));
-        postulante.setArea(request.getParameter("area"));
-        postulante.setIdCarrera(Integer.valueOf(request.getParameter("idCarrera")));
-        postulante.setIdPeriodo(Integer.valueOf(request.getParameter("idPeriodo")));
-        postulante.setFechaNacimiento(LocalDate.now()); // Ajusta según tu formulario
-        postulante.setIdGrado(2); // Ejemplo
+            // 2. Parseo seguro de la fecha
+            LocalDate fechaNacimiento = LocalDate.parse(fechaNacRaw);
 
-        // 2. Ejecutamos la matrícula (Registro en Alumno y Postulante simultáneamente)
-        Long idPostulante = alumnoDAO.registrarMatriculaCompleta(postulante);
+            // 3. Mapeo estructural hacia la entidad Alumno (DTO)
+            Alumno postulante = new Alumno();
+            postulante.setNumDocumento(numDocumento);
+            postulante.setNombres(nombres);
+            postulante.setApPaterno(apPaterno);
+            postulante.setApMaterno(apMaterno);
+            postulante.setFechaNacimiento(fechaNacimiento);
+            postulante.setCelular(celular);
+            postulante.setCorreo(correo);
+            postulante.setUbigeoNacimiento(ubigeoNac);
+            postulante.setUbigeoDomicilio(ubigeoDom);
+            postulante.setIdGrado(idGrado);
+            postulante.setIdSeccion(idSeccion);
+            
+            // Atributos de la relación transaccional intermedia
+            postulante.setIdPeriodo(idPeriodo);
+            postulante.setIdCarrera(idCarrera);
 
-        // 3. Si tuvo éxito, enviamos al usuario al certificado
-        if (idPostulante != null) {
-            // Redirigimos al servlet del certificado con el DNI para que este lo busque
-            response.sendRedirect("certificado?dni=" + postulante.getNumDocumento());
-        } else {
-            response.sendRedirect("?estado=error");
+            // 4. Delegación transaccional al DAO
+            Long idGenerado = alumnoDAO.registrarMatriculaCompleta(postulante);
+
+            if (idGenerado != null) {
+                // Éxito: Despacho automático hacia la constancia oficial
+                response.sendRedirect(request.getContextPath() + "/certificado?dni=" + numDocumento);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/home?estado=error");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("[ERROR ANDROMEDA] Error en RegistroController crítico: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/home?estado=error");
         }
     }
 }

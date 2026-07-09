@@ -121,7 +121,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Ingresa tus credenciales para continuar</p>
             </div>
 
-            <form action="login" method="POST" class="space-y-6">
+            <form action="${pageContext.request.contextPath}/login" method="POST" class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario / DNI</label>
                     <input type="text" name="username" required 
@@ -149,62 +149,128 @@
             </button>
         </div>
 
-    </div> <div id="modalRegistro" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-8 transform transition-all border-t-4 border-indigo-600">
+    </div>
+                         
+                         <div id="modalRegistro" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-all border-t-4 border-indigo-600 max-h-[90vh] overflow-y-auto">
 
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Registro de Postulante</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Completa tus datos para el simulacro</p>
-                </div>
-                <button onclick="toggleModal('modalRegistro')" class="text-gray-400 hover:text-red-500 transition text-3xl font-light">&times;</button>
+        <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Ficha Oficial de Inscripción</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Complete todos sus campos obligatorios para la emisión de su constancia</p>
             </div>
+            <button onclick="toggleModal('modalRegistro')" class="text-gray-400 hover:text-red-500 transition text-3xl font-light">&times;</button>
+        </div>
 
-            <form action="registro" method="POST" class="space-y-4">
-
-                <div>
-                    <input type="text" name="numDocumento" placeholder="DNI" required 
-                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div>
-                    <input type="text" name="nombres" placeholder="Nombres" required 
-                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-
+        <form action="${pageContext.request.contextPath}/registro" method="POST" class="space-y-6">
+            
+            <div>
+                <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">1. Identificación Personal</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ciclo</label>
-                        <select name="idPeriodo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Documento Nacional de Identidad (DNI)</label>
+                        <input type="text" name="numDocumento" required maxlength="15" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Nombres Completos</label>
+                        <input type="text" name="nombres" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Apellido Paterno</label>
+                        <input type="text" name="apPaterno" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Apellido Materno</label>
+                        <input type="text" name="apMaterno" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Fecha de Nacimiento</label>
+                        <input type="date" name="fechaNacimiento" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">2. Información de Contacto</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Teléfono Celular</label>
+                        <input type="tel" name="celular" maxlength="15" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Correo Electrónico</label>
+                        <input type="email" name="correo" maxlength="150" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">3. Ubicación y Procedencia</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ubigeo de Nacimiento (6 dígitos)</label>
+                        <input type="text" name="ubigeoNacimiento" maxlength="6" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm font-mono" placeholder="000000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ubigeo de Domicilio (6 dígitos)</label>
+                        <input type="text" name="ubigeoDomicilio" maxlength="6" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm font-mono" placeholder="000000">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">4. Inscripción Académica</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ciclo Académico</label>
+                        <select name="idPeriodo" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
                             <c:forEach var="entry" items="${mapaPeriodos}">
                                 <option value="${entry.key}">${entry.value}</option>
                             </c:forEach>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Grado</label>
-                        <select name="idGrado" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Área de Postulación</label>
+                        <select name="idArea" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
+                            <c:forEach var="a" items="${listaAreas}">
+                                <option value="${a.idArea}">${a.nombre}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Grado Escolar</label>
+                        <select name="idGrado" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
                             <c:forEach var="entry" items="${mapaGrados}">
                                 <option value="${entry.key}">${entry.value}</option>
                             </c:forEach>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Sección Asignada</label>
+                        <select name="idSeccion" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
+                            <option value="1">Sección Única (A)</option>
+                            <option value="2">Sección B</option>
+                        </select>
+                    </div>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Área Académica</label>
-                    <select name="idArea" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <c:forEach var="a" items="${listaAreas}">
-                            <option value="${a.idArea}">${a.nombre}</option>
-                        </c:forEach>
-                    </select>
-                </div>
+            <input type="hidden" name="idCarrera" value="1"> 
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold transition-all shadow-lg mt-6">
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end space-x-3">
+                <button type="button" onclick="toggleModal('modalRegistro')" class="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium text-sm transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg text-sm transition-colors">
                     Confirmar Inscripción
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
+</div>
+    
+                         
+                         
 
     <script>
         function toggleModal(modalID) {

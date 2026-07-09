@@ -28,27 +28,40 @@ public class AlumnoDAO {
      * @param alumno
      * @return 
      */
+    
+    
+    
+    
+    
+    
     public Long registrarMatriculaCompleta(Alumno alumno) {
         Connection con = null;
         Long idAlumnoGenerado = null;
         Long idPostulanteGenerado = null;
 
-        String sqlBuscarAlumno = "SELECT id_alumno FROM alumno WHERE num_documento = ?";
-        String sqlInsertAlumno = "INSERT INTO alumno (num_documento, nombres, ap_paterno, ap_materno, fecha_nacimiento, id_grado) VALUES (?, ?, ?, ?, ?, ?) RETURNING id_alumno";
-        String sqlInsertPostulante = "INSERT INTO postulante (id_alumno, id_carrera, id_periodo) VALUES (?, ?, ?) RETURNING id_postulante";
+        String sqlBuscarAlumno = "SELECT id_alumno FROM public.alumno WHERE num_documento = ?";
+        
+        // SQL Adaptado al esquema de producción con todas las columnas validadas
+        String sqlInsertAlumno = "INSERT INTO public.alumno (num_documento, nombres, ap_paterno, ap_materno, fecha_nacimiento, celular, correo, ubigeo_nacimiento, ubigeo_domicilio, id_grado, id_seccion) "
+                               + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_alumno";
+        
+        String sqlInsertPostulante = "INSERT INTO public.postulante (id_alumno, id_carrera, id_periodo) VALUES (?, ?, ?) RETURNING id_postulante";
 
         try {
             con = ConexionDB.obtenerConexion();
-            con.setAutoCommit(false); 
+            con.setAutoCommit(false); // Operación Atómica (Transaccional)
 
-            // 1. Buscar alumno
+            // 1. Verificación previa de existencia
             try (PreparedStatement psBuscar = con.prepareStatement(sqlBuscarAlumno)) {
                 psBuscar.setString(1, alumno.getNumDocumento());
-                ResultSet rs = psBuscar.executeQuery();
-                if (rs.next()) idAlumnoGenerado = rs.getLong("id_alumno");
+                try (ResultSet rs = psBuscar.executeQuery()) {
+                    if (rs.next()) {
+                        idAlumnoGenerado = rs.getLong("id_alumno");
+                    }
+                }
             }
 
-            // 2. Insertar alumno si no existe
+            // 2. Si es un nuevo postulante, guardamos la ficha completa
             if (idAlumnoGenerado == null) {
                 try (PreparedStatement psAlumno = con.prepareStatement(sqlInsertAlumno)) {
                     psAlumno.setString(1, alumno.getNumDocumento());
@@ -56,31 +69,51 @@ public class AlumnoDAO {
                     psAlumno.setString(3, alumno.getApPaterno());
                     psAlumno.setString(4, alumno.getApMaterno());
                     psAlumno.setDate(5, java.sql.Date.valueOf(alumno.getFechaNacimiento()));
-                    psAlumno.setInt(6, alumno.getIdGrado());
-                    ResultSet rsNuevo = psAlumno.executeQuery();
-                    if (rsNuevo.next()) idAlumnoGenerado = rsNuevo.getLong("id_alumno");
+                    psAlumno.setString(6, alumno.getCelular());
+                    psAlumno.setString(7, alumno.getCorreo());
+                    psAlumno.setString(8, alumno.getUbigeoNacimiento());
+                    psAlumno.setString(9, alumno.getUbigeoDomicilio());
+                    
+                    // Manejo adecuado de tipos de datos relacionales enteros
+                    if (alumno.getIdGrado() != null) psAlumno.setInt(10, alumno.getIdGrado()); else psAlumno.setNull(10, java.sql.Types.INTEGER);
+                    if (alumno.getIdSeccion() != null) psAlumno.setInt(11, alumno.getIdSeccion()); else psAlumno.setNull(11, java.sql.Types.INTEGER);
+                    
+                    try (ResultSet rsNuevo = psAlumno.executeQuery()) {
+                        if (rsNuevo.next()) {
+                            idAlumnoGenerado = rsNuevo.getLong("id_alumno");
+                        }
+                    }
                 }
             }
 
-            // 3. Insertar postulante
+            // 3. Vinculación con el Periodo (Ciclo) y la Carrera correspondiente
             if (idAlumnoGenerado != null) {
                 try (PreparedStatement psPostulante = con.prepareStatement(sqlInsertPostulante)) {
                     psPostulante.setLong(1, idAlumnoGenerado);
                     psPostulante.setInt(2, alumno.getIdCarrera());
                     psPostulante.setInt(3, alumno.getIdPeriodo());
-                    ResultSet rsPost = psPostulante.executeQuery();
-                    if (rsPost.next()) idPostulanteGenerado = rsPost.getLong("id_postulante");
+                    
+                    try (ResultSet rsPost = psPostulante.executeQuery()) {
+                        if (rsPost.next()) {
+                            idPostulanteGenerado = rsPost.getLong("id_postulante");
+                        }
+                    }
                 }
             }
 
-            con.commit();
+            con.commit(); // Éxito definitivo en base de datos
             return idPostulanteGenerado;
+
         } catch (SQLException e) {
-            if (con != null) try { con.rollback(); } catch (SQLException ex) {}
-            LOGGER.log(Level.SEVERE, "Error en matrícula", e);
+            if (con != null) {
+                try { con.rollback(); } catch (SQLException ex) { }
+            }
+            LOGGER.log(Level.SEVERE, "[ERROR TRANSACCIÓN] Matrícula compleja abortada", e);
             return null;
         } finally {
-            if (con != null) try { con.close(); } catch (SQLException ex) {}
+            if (con != null) {
+                try { con.setAutoCommit(true); con.close(); } catch (SQLException ex) { }
+            }
         }
     }
 
