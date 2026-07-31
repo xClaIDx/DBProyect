@@ -8,6 +8,7 @@
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/EditarAlumnoController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/EliminarAlumnoController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/ExportExcelServlet.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/GestionDocentesController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/HomeController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/InscripcionAlumnoServlet.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/LoginController.java
@@ -15,6 +16,7 @@
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/MaestrosServlet.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/controlador/RegistroController.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/AlumnoDAO.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/DocenteDAO.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/ExamenDAO.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/MaestrosDAO.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/PostulanteDAO.java
@@ -23,6 +25,8 @@
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/dao/UsuarioDAO.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Alumno.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Area.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Docente.java
+/Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Periodo.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Postulante.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/ResultadoDetalle.java
 /Users/klaidneil/NetBeansProjects/Andromeda/src/main/java/finesi/app/andromeda/modelo/Usuario.java

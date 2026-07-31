@@ -21,7 +21,7 @@ public class ResultadoDAO {
     /**
      * Guardar o actualizar la calificación desglosada por los 4 criterios
      */
-    public boolean guardarOCalificar(ResultadoDetalle rd, int idCalificante, int idPeriodo) {
+    public boolean guardarOCalificar(ResultadoDetalle rd, int idDocente, int idPeriodo) {
         String sqlUpsert = 
             "INSERT INTO public.resultado (id_postulante, id_alumno, id_examen, correctas, incorrectas, vacias, " +
             "nota_competencias, nota_psicotecnico, nota_redaccion, nota_entrevista, puntaje_total) " +
@@ -32,7 +32,7 @@ public class ResultadoDAO {
             "nota_redaccion = EXCLUDED.nota_redaccion, nota_entrevista = EXCLUDED.nota_entrevista, " +
             "puntaje_total = EXCLUDED.puntaje_total";
 
-        String sqlLog = "INSERT INTO public.log_calificacion (id_calificante, id_postulante, id_periodo, accion_realizada) " +
+        String sqlLog = "INSERT INTO public.log_calificacion (id_docente, id_postulante, id_periodo, accion_realizada) " +
                         "VALUES (?, ?, ?, ?)";
 
         // Suma del Puntaje Total
@@ -65,7 +65,7 @@ public class ResultadoDAO {
                 stmtRes.executeUpdate();
 
                 // Auditoría en log_calificacion
-                stmtLog.setInt(1, idCalificatorValido(conn, idCalificante));
+                stmtLog.setInt(1, idDocenteValido(conn, idDocente));
                 stmtLog.setLong(2, rd.getIdPostulante());
                 stmtLog.setInt(3, idPeriodo);
                 stmtLog.setString(4, "CALIFICACION_REGISTRADA: Total=" + total);
@@ -98,6 +98,7 @@ public class ResultadoDAO {
                      "        (a.nombres || ' ' || a.ap_paterno || ' ' || a.ap_materno) AS nombre_completo, " +
                      "        COALESCE(c.nombre, 'General') AS carrera, " +
                      "        COALESCE(ar.nombre, 'Ingenierías') AS area, " +
+                     "        per.nombre_periodo, " +
                      "        r.nota_competencias, " +
                      "        r.nota_psicotecnico, " +
                      "        r.nota_redaccion, " +
@@ -107,6 +108,7 @@ public class ResultadoDAO {
                      "    FROM public.resultado r " +
                      "    INNER JOIN public.alumno a ON r.id_alumno = a.id_alumno " +
                      "    LEFT JOIN public.postulante p ON a.id_alumno = p.id_alumno " +
+                     "    LEFT JOIN public.periodo per ON p.id_periodo = per.id_periodo " +
                      "    LEFT JOIN public.carrera c ON p.id_carrera = c.id_carrera " +
                      "    LEFT JOIN public.area ar ON c.id_area = ar.id_area " +
                      ") " +
@@ -121,16 +123,14 @@ public class ResultadoDAO {
                     r = new ResultadoDetalle();
                     r.setNumDocumento(rs.getString("num_documento"));
                     r.setNombreAlumno(rs.getString("nombre_completo"));
-                    
                     r.setCarreraProfesional(rs.getString("carrera"));
                     r.setAreaAcademica(rs.getString("area"));
-                    
+                    r.setNombreExamen(rs.getString("nombre_periodo"));
                     r.setNotaCompetencias(rs.getBigDecimal("nota_competencias"));
                     r.setNotaPsicotecnico(rs.getBigDecimal("nota_psicotecnico"));
                     r.setNotaRedaccion(rs.getBigDecimal("nota_redaccion"));
                     r.setNotaEntrevista(rs.getBigDecimal("nota_entrevista"));
                     r.setPuntajeTotal(rs.getBigDecimal("puntaje_total"));
-                    
                     r.setPosicionGeneral(rs.getInt("puesto_general"));
                 }
             }
@@ -142,47 +142,68 @@ public class ResultadoDAO {
 
     /**
      * Obtiene la lista completa de rankings ordenada por puntaje descendente.
-     * 
-     * @return Lista de objetos ResultadoDetalle con las posiciones calculadas
      */
     public List<ResultadoDetalle> listarRankings() {
+        return listarRankingsPorPeriodo(null);
+    }
+
+    /**
+     * Obtiene la lista de rankings filtrada dinámicamente por Período Académico (idPeriodo)
+     */
+    public List<ResultadoDetalle> listarRankingsPorPeriodo(Integer idPeriodo) {
         List<ResultadoDetalle> lista = new ArrayList<>();
-        String sql = "SELECT " +
-                     "    r.id_alumno, " +
-                     "    a.num_documento, " +
-                     "    (a.nombres || ' ' || a.ap_paterno || ' ' || a.ap_materno) AS nombre_completo, " +
-                     "    COALESCE(c.nombre, 'Ingeniería de Datos e Inteligencia Artificial') AS carrera, " +
-                     "    COALESCE(ar.nombre, 'Ingenierías') AS area, " +
-                     "    r.nota_competencias, " +
-                     "    r.nota_psicotecnico, " +
-                     "    r.nota_redaccion, " +
-                     "    r.nota_entrevista, " +
-                     "    r.puntaje_total, " +
-                     "    DENSE_RANK() OVER (ORDER BY r.puntaje_total DESC) AS puesto_general " +
-                     "FROM public.resultado r " +
-                     "INNER JOIN public.alumno a ON r.id_alumno = a.id_alumno " +
-                     "LEFT JOIN public.postulante p ON a.id_alumno = p.id_alumno " +
-                     "LEFT JOIN public.carrera c ON p.id_carrera = c.id_carrera " +
-                     "LEFT JOIN public.area ar ON c.id_area = ar.id_area " +
-                     "ORDER BY r.puntaje_total DESC";
+        
+        StringBuilder sql = new StringBuilder(
+            "SELECT " +
+            "    r.id_alumno, " +
+            "    a.num_documento, " +
+            "    (a.nombres || ' ' || a.ap_paterno || ' ' || a.ap_materno) AS nombre_completo, " +
+            "    COALESCE(c.nombre, 'General') AS carrera, " +
+            "    COALESCE(ar.nombre, 'Ingenierías') AS area, " +
+            "    COALESCE(per.nombre_periodo, 'Simulacro General') AS nombre_periodo, " +
+            "    r.nota_competencias, " +
+            "    r.nota_psicotecnico, " +
+            "    r.nota_redaccion, " +
+            "    r.nota_entrevista, " +
+            "    r.puntaje_total, " +
+            "    DENSE_RANK() OVER (ORDER BY r.puntaje_total DESC) AS puesto_general " +
+            "FROM public.resultado r " +
+            "INNER JOIN public.alumno a ON r.id_alumno = a.id_alumno " +
+            "LEFT JOIN public.postulante p ON a.id_alumno = p.id_alumno " +
+            "LEFT JOIN public.periodo per ON p.id_periodo = per.id_periodo " +
+            "LEFT JOIN public.carrera c ON p.id_carrera = c.id_carrera " +
+            "LEFT JOIN public.area ar ON c.id_area = ar.id_area "
+        );
+
+        if (idPeriodo != null && idPeriodo > 0) {
+            sql.append("WHERE p.id_periodo = ? ");
+        }
+
+        sql.append("ORDER BY r.puntaje_total DESC");
 
         try (Connection conn = ConexionDB.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-            while (rs.next()) {
-                ResultadoDetalle r = new ResultadoDetalle();
-                r.setNumDocumento(rs.getString("num_documento"));
-                r.setNombreAlumno(rs.getString("nombre_completo"));
-                r.setCarreraProfesional(rs.getString("carrera"));
-                r.setAreaAcademica(rs.getString("area"));
-                r.setNotaCompetencias(rs.getBigDecimal("nota_competencias"));
-                r.setNotaPsicotecnico(rs.getBigDecimal("nota_psicotecnico"));
-                r.setNotaRedaccion(rs.getBigDecimal("nota_redaccion"));
-                r.setNotaEntrevista(rs.getBigDecimal("nota_entrevista"));
-                r.setPuntajeTotal(rs.getBigDecimal("puntaje_total"));
-                r.setPosicionGeneral(rs.getInt("puesto_general"));
-                lista.add(r);
+            if (idPeriodo != null && idPeriodo > 0) {
+                stmt.setInt(1, idPeriodo);
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ResultadoDetalle r = new ResultadoDetalle();
+                    r.setNumDocumento(rs.getString("num_documento"));
+                    r.setNombreAlumno(rs.getString("nombre_completo"));
+                    r.setCarreraProfesional(rs.getString("carrera"));
+                    r.setAreaAcademica(rs.getString("area"));
+                    r.setNombreExamen(rs.getString("nombre_periodo"));
+                    r.setNotaCompetencias(rs.getBigDecimal("nota_competencias"));
+                    r.setNotaPsicotecnico(rs.getBigDecimal("nota_psicotecnico"));
+                    r.setNotaRedaccion(rs.getBigDecimal("nota_redaccion"));
+                    r.setNotaEntrevista(rs.getBigDecimal("nota_entrevista"));
+                    r.setPuntajeTotal(rs.getBigDecimal("puntaje_total"));
+                    r.setPosicionGeneral(rs.getInt("puesto_general"));
+                    lista.add(r);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -191,10 +212,10 @@ public class ResultadoDAO {
     }
 
     /**
-     * Busca un id_calificante válido o retorna 1 por defecto
+     * Busca un id_docente válido o retorna 1 por defecto
      */
-    private int idCalificatorValido(Connection conn, int idUser) {
-        String sql = "SELECT id_calificante FROM public.calificante LIMIT 1";
+    private int idDocenteValido(Connection conn, int idUser) {
+        String sql = "SELECT id_docente FROM public.docente LIMIT 1";
         try (Statement st = conn.createStatement(); 
              ResultSet rs = st.executeQuery(sql)) {
             if (rs.next()) {

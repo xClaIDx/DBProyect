@@ -4,14 +4,17 @@ finesi/app/andromeda/modelo/Postulante.class
 finesi/app/andromeda/conexion/ConexionDB.class
 finesi/app/andromeda/controlador/EditarAlumnoController.class
 finesi/app/andromeda/dao/MaestrosDAO.class
+finesi/app/andromeda/dao/DocenteDAO.class
 finesi/app/andromeda/modelo/Usuario.class
 finesi/app/andromeda/controlador/DocenteController.class
 finesi/app/andromeda/controlador/AdminServlet.class
 finesi/app/andromeda/dao/ResultadoDAO.class
 finesi/app/andromeda/modelo/Alumno.class
 finesi/app/andromeda/JakartaRestConfiguration.class
+finesi/app/andromeda/modelo/Periodo.class
 finesi/app/andromeda/controlador/RegistroController.class
 finesi/app/andromeda/modelo/ResultadoDetalle.class
+finesi/app/andromeda/modelo/Docente.class
 finesi/app/andromeda/controlador/AlumnoController.class
 finesi/app/andromeda/dao/QueryBuilder.class
 finesi/app/andromeda/resources/JakartaEE11Resource.class
@@ -22,6 +25,7 @@ finesi/app/andromeda/controlador/LogoutController.class
 finesi/app/andromeda/dao/PostulanteDAO.class
 finesi/app/andromeda/dao/ExamenDAO.class
 finesi/app/andromeda/dao/AlumnoDAO.class
+finesi/app/andromeda/controlador/GestionDocentesController.class
 finesi/app/andromeda/controlador/CertificadoServlet.class
 finesi/app/andromeda/dao/UsuarioDAO.class
 finesi/app/andromeda/controlador/InscripcionAlumnoServlet.class

@@ -41,17 +41,18 @@ public class ExamenDAO {
      * Asigna un docente/calificante a la gestión de aula/periodo en log
      */
     public boolean asignarDocenteAula(int idDocente, int idPeriodo, String aula) {
-        String sql = "INSERT INTO public.log_calificacion (id_calificante, id_periodo, accion_realizada) " +
-                     "VALUES (?, ?, ?)";
-        try (Connection conn = ConexionDB.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idDocente);
-            stmt.setInt(2, idPeriodo);
-            stmt.setString(3, "ASIGNACION_AULA: " + aula);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+    // Actualizado: id_docente en lugar de id_calificante
+    String sql = "INSERT INTO public.log_calificacion (id_docente, id_periodo, accion_realizada) " +
+                 "VALUES (?, ?, ?)";
+    try (Connection conn = ConexionDB.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, idDocente);
+        stmt.setInt(2, idPeriodo);
+        stmt.setString(3, "ASIGNACION_AULA: " + aula);
+        return stmt.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
     }
 }
