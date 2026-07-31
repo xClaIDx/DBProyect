@@ -8,63 +8,56 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 
-/**
- * Controlador para la Autenticación del Sistema.
- * Conectado a la base de datos real mediante UsuarioDAO.
- */
-@WebServlet(name = "LoginController", urlPatterns = {"/login"})
+@WebServlet(name = "LoginController", urlPatterns = {"/login", "/LoginController"})
 public class LoginController extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/login.jsp").forward(request, response);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Capturamos credenciales enviadas desde index.jsp
         String username = request.getParameter("username");
-        String clave = request.getParameter("password");
-        
-        // 2. Consultamos a la base de datos
-        Usuario usuarioLogueado = usuarioDAO.autenticar(username, clave);
-        
-        // 3. Verificamos el resultado
-        if (usuarioLogueado != null) {
-            
-            // ¡CREAMOS LA SESIÓN DE FORMA SEGURA!
-            HttpSession sesion = request.getSession();
-            sesion.setAttribute("usuarioActivo", usuarioLogueado);
-            sesion.setAttribute("rolUsuario", usuarioLogueado.getRol());
-            
-            // COMPATIBILIDAD CON VISTAS ANTERIORES:
-            // Tus controladores antiguos (como AlumnoController) validan con "adminLogueado"
-            if ("ADMIN".equals(usuarioLogueado.getRol())) {
-                sesion.setAttribute("adminLogueado", true);
-                sesion.setAttribute("nombreAdmin", usuarioLogueado.getUsername());
-            }
-            
-            // 4. Redireccionamiento Dinámico según el Rol
-            switch (usuarioLogueado.getRol()) {
+        String password = request.getParameter("password");
+
+        if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {
+            request.setAttribute("error", "Por favor, ingrese sus credenciales completas.");
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            return;
+        }
+
+        Usuario user = usuarioDAO.validarLogin(username.trim(), password.trim());
+
+        if (user != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("usuarioLogueado", user);
+            session.setAttribute("rol", user.getRol());
+
+            // Redirección inteligente por ROL
+            switch (user.getRol().toUpperCase()) {
                 case "ADMIN":
-                    response.sendRedirect(request.getContextPath() + "/alumnos"); 
+                    response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
                     break;
                 case "DOCENTE":
-                    response.sendRedirect(request.getContextPath() + "/panel_docente"); 
+                    response.sendRedirect(request.getContextPath() + "/docente/dashboard.jsp");
                     break;
                 case "ALUMNO":
-                    response.sendRedirect(request.getContextPath() + "/panel_alumno"); 
-                    break;
                 default:
-                    sesion.invalidate();
-                    response.sendRedirect(request.getContextPath() + "/?estado=error");
+                    response.sendRedirect(request.getContextPath() + "/alumno/dashboard.jsp");
                     break;
             }
-            
         } else {
-            // Si retorna null, las credenciales no existen o la cuenta está inactiva
-            response.sendRedirect(request.getContextPath() + "/?estado=error_login");
+            request.setAttribute("error", "Usuario o contraseña incorrectos, o la cuenta está inactiva.");
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
     }
 }

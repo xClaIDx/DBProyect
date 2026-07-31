@@ -4,102 +4,125 @@
     Author     : klaidneil
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="finesi.app.andromeda.modelo.ResultadoDetalle"%>
+<%
+    ResultadoDetalle res = (ResultadoDetalle) request.getAttribute("resultado");
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Constancia de Inscripción | Andromeda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ficha de Resultados de Examen</title>
     <style>
-        @page { size: A4 portrait; margin: 0; }
-        @media print {
-            body { background-color: white !important; }
-            .no-imprimir { display: none !important; }
-        }
+        body { font-family: Arial, sans-serif; margin: 30px; color: #222; }
+        .cert-box { border: 2px solid #002b49; padding: 30px; max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; border-bottom: 2px solid #002b49; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h2 { margin: 0; color: #002b49; font-size: 22px; }
+        .header h3 { margin: 5px 0 0 0; font-size: 16px; color: #555; }
+        .table-data { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        .table-data td { padding: 6px 10px; }
+        .table-data td.label { font-weight: bold; width: 30%; background-color: #f2f2f2; }
+        .table-results { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        .table-results th, .table-results td { border: 1px solid #333; padding: 8px 12px; text-align: center; }
+        .table-results th { background-color: #002b49; color: white; }
+        .total-row { font-weight: bold; background-color: #e6f2ff; }
+        .footer-date { margin-top: 30px; text-align: right; font-size: 13px; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
-<body class="bg-slate-200 min-h-screen flex items-center justify-center py-10 font-sans">
+<body>
 
-    <div class="bg-white w-[210mm] min-h-[297mm] shadow-2xl print:shadow-none border-[12px] border-double border-indigo-900 p-12 relative flex flex-col">
-        
-        <header class="flex justify-between items-center border-b-2 border-slate-300 pb-6 mb-10">
-            
-            <div class="flex items-center space-x-6">
-                <img src="${pageContext.request.contextPath}/assets/images/logo.png" 
-                     alt="Escudo Institucional" 
-                     class="h-24 w-auto object-contain print:m-0">
-                     
-                <div>
-                    <h1 class="text-3xl font-serif font-extrabold text-indigo-900 uppercase tracking-widest">Colegio Andromeda</h1>
-                    <p class="text-sm text-slate-500 font-medium mt-1">Sistema Integrado de Gestión Académica</p>
-                </div>
-            </div>
-            
-            <div class="text-right">
-                <p class="text-xs text-slate-400 font-mono">ID Registro: #${alumno.numDocumento}</p>
-                <p class="text-xs text-slate-400">Generado automáticamente</p>
-            </div>
-            
-        </header>
+<div class="no-print" style="text-align: center; margin-bottom: 20px;">
+    <button onclick="window.print()" style="padding: 10px 20px; background: #002b49; color: white; border: none; cursor: pointer; font-size: 14px; border-radius: 4px;">🖨️ Imprimir Ficha de Resultados</button>
+</div>
 
-        <div class="text-center mb-12">
-            <h2 class="text-4xl font-black text-slate-800 uppercase tracking-wide">Constancia de Matrícula</h2>
-            <p class="text-slate-500 mt-2 text-lg">Simulacro General de Admisión</p>
-        </div>
-
-        <div class="flex-grow">
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 space-y-6 text-lg">
-                
-                <div class="flex border-b border-slate-200 pb-3">
-                    <span class="font-bold w-48 text-indigo-900 uppercase text-sm tracking-wider">Postulante:</span>
-                    <span class="text-slate-800 font-medium">${alumno.apPaterno} ${alumno.apMaterno}, ${alumno.nombres}</span>
-                </div>
-                
-                <div class="flex border-b border-slate-200 pb-3">
-                    <span class="font-bold w-48 text-indigo-900 uppercase text-sm tracking-wider">Documento (DNI):</span>
-                    <span class="text-slate-800 font-mono">${alumno.numDocumento}</span>
-                </div>
-
-                <div class="flex border-b border-slate-200 pb-3">
-                    <span class="font-bold w-48 text-indigo-900 uppercase text-sm tracking-wider">Ciclo / Periodo:</span>
-                    <span class="text-slate-800">${alumno.nombrePeriodo}</span>
-                </div>
-
-                <div class="flex border-b border-slate-200 pb-3">
-                    <span class="font-bold w-48 text-indigo-900 uppercase text-sm tracking-wider">Grado Académico:</span>
-                    <span class="text-slate-800">${alumno.nombreGrado}</span>
-                </div>
-
-                <div class="flex border-b border-slate-200 pb-3">
-                    <span class="font-bold w-48 text-indigo-900 uppercase text-sm tracking-wider">Área Postulación:</span>
-                    <span class="text-slate-800">${alumno.nombreArea}</span>
-                </div>
-                
-            </div>
-        </div>
-
-        <div class="mt-20 flex justify-around">
-            <div class="text-center w-64 border-t border-slate-400 pt-2">
-                <p class="font-bold text-slate-700">Firma del Postulante</p>
-                <p class="text-xs text-slate-500">DNI: ${alumno.numDocumento}</p>
-            </div>
-            <div class="text-center w-64 border-t border-slate-400 pt-2">
-                <p class="font-bold text-slate-700">Sello de la Institución</p>
-                <p class="text-xs text-slate-500">Dirección Académica</p>
-            </div>
-        </div>
-        
+<div class="cert-box">
+    <div class="header">
+        <h2>UNIVERSIDAD MERCEDARIA "SAN PEDRO NOLASCO"</h2>
+        <h3><%= (res != null) ? res.getNombreExamen() : "II Simulacro de Admisión 2026" %></h3>
     </div>
 
-    <div class="fixed bottom-8 right-8 flex space-x-4 no-imprimir">
-        <a href="${pageContext.request.contextPath}/home" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-full font-bold shadow-xl transition-all">
-            Volver al Inicio
-        </a>
-        <button onclick="window.print()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-bold shadow-xl flex items-center transition-all">
-            <span class="mr-2">🖨️</span> Descargar / Imprimir
-        </button>
+    <h4 style="text-align: center; margin-bottom: 15px;">CONSTANCIA OFICIAL DE RESULTADOS</h4>
+
+    <% if (res != null) { %>
+    <table class="table-data" border="1" bordercolor="#ccc">
+        <tr>
+            <td class="label">Participante:</td>
+            <td><b><%= res.getNombreAlumno() %></b></td>
+        </tr>
+        <tr>
+            <td class="label">Documento de Identidad:</td>
+            <td><%= res.getNumDocumento() %></td>
+        </tr>
+        <tr>
+            <td class="label">Grado y Sección:</td>
+            <td><%= res.getGradoSeccion() %></td>
+        </tr>
+        <tr>
+            <td class="label">Área a la que postula:</td>
+            <td><%= res.getAreaPostulacion() %></td>
+        </tr>
+        <tr>
+            <td class="label">Carrera Profesional:</td>
+            <td><%= res.getCarreraProfesional() %></td>
+        </tr>
+        <tr>
+            <td class="label">Fecha de Evaluación:</td>
+            <td><%= res.getFechaExamen() %></td>
+        </tr>
+    </table>
+
+    <h5 style="margin-top: 20px;">Desglose de Calificaciones por Criterio:</h5>
+    <table class="table-results">
+        <thead>
+            <tr>
+                <th>Prueba / Criterio</th>
+                <th>Calificativo Obtenido</th>
+                <th>Calificativo Ideal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: left;">Competencias académicas (70 preguntas)</td>
+                <td><b><%= res.getNotaCompetencias() %></b></td>
+                <td>60 puntos</td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Psicotécnico (20 preguntas)</td>
+                <td><b><%= res.getNotaPsicotecnico() %></b></td>
+                <td>20 puntos</td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Prueba de redacción</td>
+                <td><b><%= res.getNotaRedaccion() %></b></td>
+                <td>10 puntos</td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Entrevista personal</td>
+                <td><b><%= res.getNotaEntrevista() %></b></td>
+                <td>10 puntos</td>
+            </tr>
+            <tr class="total-row">
+                <td style="text-align: left;">Puntaje total</td>
+                <td style="color: #002b49; font-size: 16px;"><b><%= res.getPuntajeTotal() %></b></td>
+                <td>100 puntos</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px; font-size: 13px;">
+        <span>Posición General: <b><%= res.getPosicionGeneral() %></b></span> | 
+        <span>Posición en Carrera: <b><%= res.getPosicionCarrera() %></b></span>
     </div>
+
+    <div class="footer-date">
+        Puno, julio de 2026
+    </div>
+    <% } else { %>
+        <p style="text-align: center; color: red;">No se encontraron resultados registrados para este estudiante.</p>
+    <% } %>
+</div>
 
 </body>
 </html>

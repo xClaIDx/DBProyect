@@ -6,12 +6,15 @@
 package finesi.app.andromeda.controlador;
 
 import finesi.app.andromeda.dao.AlumnoDAO;
+import finesi.app.andromeda.modelo.Usuario;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 
 @WebServlet(name = "EliminarAlumnoController", urlPatterns = {"/eliminarAlumno"})
@@ -23,33 +26,30 @@ public class EliminarAlumnoController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. SEGURIDAD: Validar que el administrador tenga su sesión activa
         HttpSession sesion = request.getSession(false);
-        if (sesion == null || sesion.getAttribute("adminLogueado") == null) {
-            response.sendRedirect(request.getContextPath() + "/?estado=requiere_login");
+        Usuario user = (sesion != null) ? (Usuario) sesion.getAttribute("usuarioLogueado") : null;
+
+        if (user == null || !"ADMIN".equals(user.getRol())) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=sin_permiso");
             return;
         }
 
-        // 2. Capturar el ID del alumno que viene desde el botón de la vista
         String idParam = request.getParameter("idAlumno");
         
         if (idParam != null && !idParam.isEmpty()) {
             try {
                 Long id = Long.parseLong(idParam);
-                
-                // 3. Ejecutar la eliminación
                 boolean exito = alumnoDAO.eliminarAlumno(id);
                 
-                // 4. Redirigir al dashboard con un mensaje de éxito o error
                 if (exito) {
-                    response.sendRedirect("alumnos?mensaje=eliminado");
+                    request.getSession().setAttribute("msgExitoAdmin", "Alumno eliminado correctamente de la base de datos.");
                 } else {
-                    response.sendRedirect("alumnos?mensaje=error_eliminar");
+                    request.getSession().setAttribute("msgErrorAdmin", "No se pudo eliminar el registro del alumno.");
                 }
             } catch (NumberFormatException e) {
-                // Si alguien altera el HTML y envía letras en vez de un número
-                response.sendRedirect("alumnos?mensaje=error_eliminar");
+                request.getSession().setAttribute("msgErrorAdmin", "ID de alumno inválido.");
             }
         }
+        response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
     }
 }

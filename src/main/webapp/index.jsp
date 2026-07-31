@@ -9,11 +9,11 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
-<html lang="es" class="light">
+<html lang="es" id="htmlTag" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colegio Andromeda | Inicio</title>
+    <title>Colegio Andromeda | Inicio y Sistema Integrado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,67 +21,63 @@
         }
     </script>
 </head>
-<body class="bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100 overflow-hidden">
-    
-    <c:if test="${not empty param.estado}">
+<body class="bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden">
+
+    <%-- ALERTAS SISTEMA --%>
+    <c:if test="${not empty param.estado || not empty param.error || not empty requestScope.error || not empty requestScope.mensajeExito}">
         <div id="alertaSistema" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 transition-all duration-500">
             <c:choose>
-                <c:when test="${param.estado == 'error_login'}">
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg flex items-center">
-                        <span class="text-2xl mr-3">⚠️</span>
-                        <p class="font-bold">Credenciales incorrectas. Intenta de nuevo.</p>
-                    </div>c
+                <c:when test="${param.estado == 'error_login' || not empty requestScope.error}">
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg flex justify-between items-center">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">⚠️</span>
+                            <p class="font-bold text-sm">
+                                <c:out value="${requestScope.error}" default="Credenciales incorrectas. Intenta de nuevo." />
+                            </p>
+                        </div>
+                        <button onclick="document.getElementById('alertaSistema').style.display='none'" class="text-red-900 font-bold ml-2">&times;</button>
+                    </div>
                 </c:when>
 
                 <c:when test="${param.estado == 'requiere_login'}">
                     <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded shadow-lg flex items-center">
                         <span class="text-2xl mr-3">🔒</span>
-                        <p class="font-bold">Acceso denegado. Por favor, inicia sesión primero.</p>
+                        <p class="font-bold text-sm">Acceso denegado. Inicia sesión primero.</p>
                     </div>
                 </c:when>
-                
-                <c:when test="${param.estado == 'exito'}">
+
+                <c:when test="${param.estado == 'sin_permiso'}">
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-4 rounded shadow-lg flex items-center">
+                        <span class="text-2xl mr-3">🚫</span>
+                        <p class="font-bold text-sm">No tienes permisos para ingresar a ese panel.</p>
+                    </div>
+                </c:when>
+
+                <c:when test="${param.estado == 'exito' || not empty requestScope.mensajeExito}">
                     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg flex justify-between items-center">
                         <div class="flex items-center">
                             <span class="text-2xl mr-3">✅</span>
-                            <p class="font-bold">¡Inscripción exitosa! Te contactaremos pronto.</p>
+                            <p class="font-bold text-sm">
+                                <c:out value="${requestScope.mensajeExito}" default="¡Inscripción exitosa! Tu DNI es tu usuario y contraseña." />
+                            </p>
                         </div>
-                        <button onclick="document.getElementById('alertaSistema').style.display='none'" class="text-green-900 font-bold">&times;</button>
+                        <button onclick="document.getElementById('alertaSistema').style.display='none'" class="text-green-900 font-bold ml-2">&times;</button>
                     </div>
                 </c:when>
-                
-                <c:when test="${param.estado == 'error'}">
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg flex justify-between items-center">
-                        <div class="flex items-center">
-                            <span class="text-2xl mr-3">⚠️</span>
-                            <p class="font-bold">Error. Verifica tus datos o el DNI ingresado.</p>
-                        </div>
-                        <button onclick="document.getElementById('alertaSistema').style.display='none'" class="text-red-900 font-bold">&times;</button>
-                    </div>
-                </c:when>
-                
+
                 <c:when test="${param.estado == 'logout'}">
                     <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-4 rounded shadow-lg flex items-center">
                         <span class="text-2xl mr-3">👋</span>
-                        <p class="font-bold">Sesión cerrada correctamente. ¡Hasta pronto!</p>
+                        <p class="font-bold text-sm">Sesión cerrada correctamente. ¡Hasta pronto!</p>
                     </div>
                 </c:when>
             </c:choose>
         </div>
-        
-        <script>
-            setTimeout(function() {
-                var alerta = document.getElementById('alertaSistema');
-                if(alerta) {
-                    alerta.style.opacity = '0';
-                    setTimeout(() => alerta.style.display = 'none', 500);
-                }
-            }, 5000);
-        </script>
     </c:if>
 
     <div class="flex min-h-screen">
 
+        <!-- LADO IZQUIERDO BANNER -->
         <div class="hidden lg:flex lg:w-3/4 relative bg-cover bg-center" 
              style="background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
             
@@ -90,205 +86,228 @@
             <div class="relative z-10 w-full p-12 flex flex-col justify-between">
                 <div class="flex items-center space-x-4">
                     <img src="${pageContext.request.contextPath}/assets/images/logo.png" 
-                         alt="Logo Oficial Colegio Andromeda" 
-                         class="h-32 w-35 object-contain">
+                         alt="Logo Colegio Andromeda" 
+                         class="h-28 w-28 object-contain">
                     <span class="text-3xl font-serif font-bold text-white tracking-widest uppercase">Colegio Andromeda</span>
                 </div>
 
                 <div class="max-w-2xl text-white">
                     <h1 class="text-6xl font-serif font-bold mb-6 leading-tight">Forjando el futuro<br>desde hoy.</h1>
                     <p class="text-xl text-indigo-100 font-light border-l-4 border-indigo-400 pl-4">
-                        Sistema Integrado de Gestión Académica. Únete a nuestro simulacro de admisión y descubre tu potencial.
+                        Sistema Integrado de Gestión Académica y Admisión. Únete a nuestro simulacro universitario.
                     </p>
                 </div>
 
                 <div class="text-indigo-200 text-sm">
-                    &copy; 2026 Colegio Andromeda. Todos los derechos reservados.
+                    &copy; 2026 Colegio Andromeda — Universidad Mercedaria "San Pedro Nolasco".
                 </div>
             </div>
         </div>
 
+        <!-- LADO DERECHO FORMULARIO LOGIN -->
         <div class="w-full lg:w-1/4 bg-white dark:bg-slate-800 p-8 md:p-12 flex flex-col justify-center relative shadow-2xl z-20">
             
-            <button id="themeToggle" class="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <!-- Botón Modo Oscuro -->
+            <button id="themeToggleBtn" type="button" class="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer text-xl">
                 🌓
             </button>
 
-            <div class="mb-10 text-center lg:text-left">
+            <div class="mb-8 text-center lg:text-left">
                 <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Acceso al Sistema</h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Ingresa tus credenciales para continuar</p>
+                <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 font-semibold">Alumnos: Usuario y Clave inicial es su DNI</p>
             </div>
 
-            <form action="${pageContext.request.contextPath}/login" method="POST" class="space-y-6">
+            <form action="${pageContext.request.contextPath}/login" method="POST" class="space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario / DNI</label>
                     <input type="text" name="username" required 
-                           class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                           class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                           placeholder="Ingrese DNI o Usuario">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</label>
                     <input type="password" name="password" required 
-                           class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                           class="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                           placeholder="••••••••">
                 </div>
                 
-                <button type="submit" class="w-full bg-indigo-900 hover:bg-indigo-800 text-white font-bold py-3 rounded-lg shadow-lg transition transform hover:-translate-y-0.5">
+                <button type="submit" class="w-full bg-indigo-900 hover:bg-indigo-800 text-white font-bold py-3 rounded-lg shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
                     Iniciar Sesión
                 </button>
             </form>
 
-            <div class="my-8 flex items-center">
+            <div class="my-6 flex items-center">
                 <div class="flex-grow border-t border-gray-200 dark:border-slate-600"></div>
-                <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">¿Eres postulante?</span>
+                <span class="flex-shrink-0 mx-4 text-gray-400 text-xs">¿Eres postulante nuevo?</span>
                 <div class="flex-grow border-t border-gray-200 dark:border-slate-600"></div>
             </div>
 
-            <button onclick="toggleModal('modalRegistro')" class="w-full border-2 border-indigo-900 text-indigo-900 dark:border-indigo-400 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 font-bold py-3 rounded-lg transition">
+            <!-- Botón Modal de Inscripción -->
+            <button type="button" id="btnAbrirModal" class="w-full border-2 border-indigo-900 text-indigo-900 dark:border-indigo-400 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 font-bold py-3 rounded-lg transition cursor-pointer">
                 Inscríbete al Simulacro
             </button>
         </div>
 
     </div>
             
-    <div id="modalRegistro" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-8 transform transition-all border-t-4 border-indigo-600 max-h-[90vh] overflow-y-auto">
+    <!-- MODAL DE REGISTRO -->
+    <div id="modalRegistro" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 md:p-8 transform transition-all border-t-4 border-indigo-600 max-h-[90vh] overflow-y-auto">
 
             <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
                 <div>
                     <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Ficha Oficial de Inscripción</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Complete todos sus campos obligatorios para la emisión de su constancia</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Complete los datos obligatorios para emitir su constancia</p>
                 </div>
-                <button onclick="toggleModal('modalRegistro')" class="text-gray-400 hover:text-red-500 transition text-3xl font-light">&times;</button>
+                <button type="button" id="btnCerrarModal" class="text-gray-400 hover:text-red-500 transition text-3xl font-light cursor-pointer">&times;</button>
             </div>
 
             <form action="${pageContext.request.contextPath}/registro" method="POST" class="space-y-6">
-                
                 <div>
                     <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">1. Identificación Personal</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Documento Nacional de Identidad (DNI)</label>
-                            <input type="text" name="numDocumento" required maxlength="15" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">DNI (*)</label>
+                            <input type="text" name="numDocumento" required maxlength="15" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm" placeholder="Ej: 78409636">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Nombres Completos</label>
-                            <input type="text" name="nombres" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Nombres Completos (*)</label>
+                            <input type="text" name="nombres" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm" placeholder="Ej: Natalie Jennifer">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Apellido Paterno</label>
-                            <input type="text" name="apPaterno" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Apellido Paterno (*)</label>
+                            <input type="text" name="apPaterno" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm" placeholder="Ej: Herrera">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Apellido Materno</label>
-                            <input type="text" name="apMaterno" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Apellido Materno (*)</label>
+                            <input type="text" name="apMaterno" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm" placeholder="Ej: Melo">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Fecha de Nacimiento</label>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Fecha de Nacimiento (*)</label>
                             <input type="date" name="fechaNacimiento" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">2. Información de Contacto</h4>
+                    <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">2. Contacto y Procedencia</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Teléfono Celular</label>
-                            <input type="tel" name="celular" maxlength="15" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Celular</label>
+                            <input type="tel" name="celular" maxlength="15" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm" placeholder="Ej: 987654321">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Correo Electrónico</label>
-                            <input type="email" name="correo" maxlength="150" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Correo Electrónico (*)</label>
+                            <input type="email" name="correo" required maxlength="150" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm" placeholder="ejemplo@correo.com">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ubigeo Nacimiento</label>
+                            <input type="text" name="ubigeoNacimiento" maxlength="6" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm font-mono" placeholder="210101">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ubigeo Domicilio</label>
+                            <input type="text" name="ubigeoDomicilio" maxlength="6" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm font-mono" placeholder="210101">
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">3. Ubicación y Procedencia</h4>
+                    <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">4. Inscripción Académica y Simulacro</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ubigeo de Nacimiento (6 dígitos)</label>
-                            <input type="text" name="ubigeoNacimiento" maxlength="6" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm font-mono" placeholder="000000">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ubigeo de Domicilio (6 dígitos)</label>
-                            <input type="text" name="ubigeoDomicilio" maxlength="6" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm font-mono" placeholder="000000">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">4. Inscripción Académica</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Ciclo Académico</label>
-                            <select name="idPeriodo" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
-                                <c:forEach var="entry" items="${mapaPeriodos}">
-                                    <option value="${entry.key}">${entry.value}</option>
-                                </c:forEach>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Periodo / Simulacro (*)</label>
+                            <select name="idPeriodo" class="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white">
+                                <option value="1">II Simulacro de Admisión 2026 (Activo)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Área de Postulación</label>
-                            <select name="idArea" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
-                                <c:forEach var="a" items="${listaAreas}">
-                                    <option value="${a.idArea}">${a.nombre}</option>
-                                </c:forEach>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Carrera Profesional de Destino (*)</label>
+                            <select name="idCarrera" class="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white">
+                                <option value="1">Medicina Humana (Biomédicas)</option>
+                                <option value="2">Enfermería (Biomédicas)</option>
+                                <option value="3">Ingeniería de Datos e IA (Ingenierías)</option>
+                                <option value="4">Ingeniería de Sistemas (Ingenierías)</option>
+                                <option value="5">Derecho (Sociales)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Grado Escolar</label>
-                            <select name="idGrado" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
-                                <c:forEach var="entry" items="${mapaGrados}">
-                                    <option value="${entry.key}">${entry.value}</option>
-                                </c:forEach>
+                            <select name="idGrado" class="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white">
+                                <option value="1">Primer Año</option>
+                                <option value="2">Segundo Año</option>
+                                <option value="3">Tercer Año</option>
+                                <option value="4">Cuarto Año</option>
+                                <option value="5">Quinto Año</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Sección Asignada</label>
-                            <select name="idSeccion" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-700 dark:text-white text-sm bg-white">
-                                <option value="1">Sección Única (A)</option>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Sección</label>
+                            <select name="idSeccion" class="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white">
+                                <option value="1">Sección A</option>
                                 <option value="2">Sección B</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <input type="hidden" name="idCarrera" value="1"> 
-
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end space-x-3">
-                    <button type="button" onclick="toggleModal('modalRegistro')" class="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium text-sm transition-colors">
+                    <button type="button" id="btnCancelarModal" class="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium text-sm transition-colors cursor-pointer">
                         Cancelar
                     </button>
-                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg text-sm transition-colors">
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg text-sm transition-colors cursor-pointer">
                         Confirmar Inscripción
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    
+
+    <!-- SCRIPT DE NAVEGACIÓN, MODO OSCURO Y MODAL -->
     <script>
-        function toggleModal(modalID) {
-            const modal = document.getElementById(modalID);
-            if (modal.classList.contains('hidden')) {
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('modalRegistro');
+            const btnAbrir = document.getElementById('btnAbrirModal');
+            const btnCerrar = document.getElementById('btnCerrarModal');
+            const btnCancelar = document.getElementById('btnCancelarModal');
+
+            function abrirModal() {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-            } else {
+            }
+
+            function cerrarModal() {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
-        }
 
-        const themeToggleBtn = document.getElementById('themeToggle');
-        const htmlElement = document.documentElement;
+            if (btnAbrir) btnAbrir.addEventListener('click', abrirModal);
+            if (btnCerrar) btnCerrar.addEventListener('click', cerrarModal);
+            if (btnCancelar) btnCancelar.addEventListener('click', cerrarModal);
 
-        themeToggleBtn.addEventListener('click', () => {
-            if (htmlElement.classList.contains('dark')) {
-                htmlElement.classList.remove('dark');
-                htmlElement.classList.add('light');
-            } else {
-                htmlElement.classList.remove('light');
-                htmlElement.classList.add('dark');
+            // Modo Oscuro
+            const themeBtn = document.getElementById('themeToggleBtn');
+            const htmlTag = document.getElementById('htmlTag');
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function () {
+                    if (htmlTag.classList.contains('dark')) {
+                        htmlTag.classList.remove('dark');
+                        htmlTag.classList.add('light');
+                    } else {
+                        htmlTag.classList.remove('light');
+                        htmlTag.classList.add('dark');
+                    }
+                });
+            }
+
+            // Ocultar alerta automáticamente
+            const alerta = document.getElementById('alertaSistema');
+            if (alerta) {
+                setTimeout(function () {
+                    alerta.style.opacity = '0';
+                    setTimeout(() => alerta.style.display = 'none', 500);
+                }, 5000);
             }
         });
     </script>

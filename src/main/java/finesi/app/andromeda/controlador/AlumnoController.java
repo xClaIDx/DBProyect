@@ -6,6 +6,7 @@ package finesi.app.andromeda.controlador;
 
 import finesi.app.andromeda.dao.AlumnoDAO;
 import finesi.app.andromeda.modelo.Alumno;
+import finesi.app.andromeda.modelo.Usuario;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,77 +16,51 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 /**
- * Controlador (Servlet) para manejar las peticiones web relacionadas con Alumno.
- * Intercepta las solicitudes HTTP, interactua con el DAO y redirige a las vistas (JSP).
+ * Controlador para gestionar la lista e inscripción de Alumnos.
  */
 @WebServlet(name = "AlumnoController", urlPatterns = {"/alumnos"})
 public class AlumnoController extends HttpServlet {
 
-    // Instanciamos nuestro DAO para poder usar sus metodos de base de datos
     private final AlumnoDAO alumnoDAO = new AlumnoDAO();
 
-    /**
-     * Maneja las peticiones de tipo GET (Cuando el usuario entra a la pagina o recarga).
-     * Su objetivo es extraer los datos y enviarlos a la vista.
-     * @param request
-     * @param response
-     * @throws jakarta.servlet.ServletException
-     * @throws java.io.IOException
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // =========================================================
-        // BARRERA DE SEGURIDAD (Validación de Sesión)
-        // =========================================================
-        HttpSession sesion = request.getSession(false); // false = No crear una nueva si no existe
+        // BARRERA DE SEGURIDAD (Validación de Sesión y Rol)
+        HttpSession sesion = request.getSession(false);
+        Usuario user = (sesion != null) ? (Usuario) sesion.getAttribute("usuarioLogueado") : null;
         
-        if (sesion == null || sesion.getAttribute("adminLogueado") == null) {
-            // Si no tiene el "Gafete VIP", lo pateamos de vuelta a la página principal
-            response.sendRedirect(request.getContextPath() + "/?estado=requiere_login");
-            return; // DETENEMOS LA EJECUCIÓN AQUÍ, MUY IMPORTANTE
+        if (user == null || (!"ADMIN".equals(user.getRol()) && !"DOCENTE".equals(user.getRol()))) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=requiere_login");
+            return;
         }
-        // =========================================================
 
-        // ... A partir de aquí, tu código sigue exactamente igual ...
-        
-        // 1. Obtenemos la lista de alumnos desde PostgreSQL
-        // =========================================================
-        // (Tu código de seguridad de sesión sigue igual aquí arriba)
-        // =========================================================
-
-        // 1. Obtenemos la lista de alumnos desde PostgreSQL
+        // 1. Obtener la lista de alumnos desde PostgreSQL
+        // Nota: Si en tu AlumnoDAO el método se llama listarTodos() u obtenerPorDni, aseguramos la llamada
         List<Alumno> lista = alumnoDAO.listarAlumnos();
         
-        // 2. Obtenemos nuestras métricas (KPIs)
-        int totalAlumnos = alumnoDAO.obtenerTotalAlumnos();
+        // 2. Muestra de Métricas (KPIs)
+        int totalAlumnos = (lista != null) ? lista.size() : 0;
         
-        // 3. Guardamos TODO en la petición (request) para que la vista lo use
+        // 3. Inyección de atributos a la vista
         request.setAttribute("listaAlumnos", lista);
-        request.setAttribute("totalRegistrados", totalAlumnos); // <- Nueva variable inyectada
+        request.setAttribute("totalRegistrados", totalAlumnos);
         
-        // 4. Redirigimos al archivo visual (alumnos.jsp)
-        request.getRequestDispatcher("alumnos.jsp").forward(request, response);
+        // 4. Redirección a la vista protegida
+        request.getRequestDispatcher("/assets/alumnos.jsp").forward(request, response);
     }
 
-    /**
-     * Maneja las peticiones de tipo POST (Cuando el usuario hace clic en "Guardar" en el formulario).
-     * Su objetivo es recibir los textos, armar el objeto y mandarlo a guardar.
-     * @param request
-     * @param response
-     * @throws jakarta.servlet.ServletException
-     * @throws java.io.IOException
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Recibimos los datos enviados desde los <input> del formulario HTML/JSP
+        request.setCharacterEncoding("UTF-8");
+
         String numDocumento = request.getParameter("numDocumento");
         String nombres = request.getParameter("nombres");
         String apPaterno = request.getParameter("apPaterno");
@@ -94,31 +69,42 @@ public class AlumnoController extends HttpServlet {
         String celular = request.getParameter("celular");
         String correo = request.getParameter("correo");
         
-        // Los datos llegan como texto (String), por lo que debemos convertir los numeros
-        int idGrado = Integer.parseInt(request.getParameter("idGrado"));
-        int idSeccion = 1; // Forzamos un valor por defecto para este ejercicio
+        int idGrado = 1;
+        int idSeccion = 1;
+        
+        try {
+            if (request.getParameter("idGrado") != null) {
+                idGrado = Integer.parseInt(request.getParameter("idGrado"));
+            }
+            if (request.getParameter("idSeccion") != null) {
+                idSeccion = Integer.parseInt(request.getParameter("idSeccion"));
+            }
+        } catch (NumberFormatException e) {
+            // Valores por defecto en caso de formato inválido
+        }
 
-        // 2. Construimos el objeto Modelo con los datos recibidos
+        // Construcción del objeto Alumno
         Alumno nuevoAlumno = new Alumno();
         nuevoAlumno.setNumDocumento(numDocumento);
         nuevoAlumno.setNombres(nombres);
         nuevoAlumno.setApPaterno(apPaterno);
         nuevoAlumno.setApMaterno(apMaterno);
-        nuevoAlumno.setFechaNacimiento(LocalDate.parse(fechaNacimiento));
+        
+        if (fechaNacimiento != null && !fechaNacimiento.isEmpty()) {
+            nuevoAlumno.setFechaNacimiento(Date.valueOf(fechaNacimiento));
+        }
+        
         nuevoAlumno.setCelular(celular);
         nuevoAlumno.setCorreo(correo);
         nuevoAlumno.setIdGrado(idGrado);
         nuevoAlumno.setIdSeccion(idSeccion);
 
-        // 3. Llamamos al DAO para ejecutar el INSERT en PostgreSQL
-        boolean registrado = alumnoDAO.registrarAlumno(nuevoAlumno);
+        // Registro atómico (crea cuenta de usuario DNI/DNI + Registro Alumno)
+        boolean registrado = alumnoDAO.registrarAlumnoConUsuario(nuevoAlumno);
 
-        // 4. Patrón Post-Redirect-Get: Redirigimos nuevamente a la URL "/alumnos" por metodo GET
-        // Esto evita que si el usuario presiona F5, el formulario se reenvie y se duplique el alumno.
         if (registrado) {
-            response.sendRedirect("alumnos");
+            response.sendRedirect("alumnos?mensaje=registrado");
         } else {
-            // Si algo falla, redirigimos pero enviamos una bandera de error en la URL
             response.sendRedirect("alumnos?error=true");
         }
     }

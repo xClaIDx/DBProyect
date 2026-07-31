@@ -2,386 +2,333 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package finesi.app.andromeda.dao;
 
 import finesi.app.andromeda.conexion.ConexionDB;
 import finesi.app.andromeda.modelo.Alumno;
-import finesi.app.andromeda.modelo.Area;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AlumnoDAO {
-    private static final Logger LOGGER = Logger.getLogger(AlumnoDAO.class.getName());
 
     /**
-     * Registra un alumno y lo inscribe como postulante en una sola Transacción.
-     * Retorna el ID del Postulante para poder generar su certificado.
-     * @param alumno
-     * @return 
+     * Autoregistro completo del Alumno en transacción (Usuario DNI/DNI + Alumno)
      */
-    
-    
-    
-    
-    
-    
-    public Long registrarMatriculaCompleta(Alumno alumno) {
-        Connection con = null;
-        Long idAlumnoGenerado = null;
-        Long idPostulanteGenerado = null;
+    public boolean registrarAlumnoConUsuario(Alumno alumno) {
+        String sqlUsuario = "INSERT INTO public.usuario (username, password_hash, rol, estado) VALUES (?, ?, 'ALUMNO', true)";
+        String sqlAlumno = "INSERT INTO public.alumno (num_documento, nombres, ap_paterno, ap_materno, fecha_nacimiento, " +
+                           "celular, correo, ubigeo_nacimiento, ubigeo_domicilio, id_grado, id_seccion, id_usuario) " +
+                           "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        String sqlBuscarAlumno = "SELECT id_alumno FROM public.alumno WHERE num_documento = ?";
-        
-        // SQL Adaptado al esquema de producción con todas las columnas validadas
-        String sqlInsertAlumno = "INSERT INTO public.alumno (num_documento, nombres, ap_paterno, ap_materno, fecha_nacimiento, celular, correo, ubigeo_nacimiento, ubigeo_domicilio, id_grado, id_seccion) "
-                               + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_alumno";
-        
-        String sqlInsertPostulante = "INSERT INTO public.postulante (id_alumno, id_carrera, id_periodo) VALUES (?, ?, ?) RETURNING id_postulante";
-
+        Connection conn = null;
         try {
-            con = ConexionDB.obtenerConexion();
-            con.setAutoCommit(false); // Operación Atómica (Transaccional)
+            conn = ConexionDB.getConnection();
+            conn.setAutoCommit(false); // Inicio de transacción
 
-            // 1. Verificación previa de existencia
-            try (PreparedStatement psBuscar = con.prepareStatement(sqlBuscarAlumno)) {
-                psBuscar.setString(1, alumno.getNumDocumento());
-                try (ResultSet rs = psBuscar.executeQuery()) {
+            // 1. Crear Usuario con DNI como clave
+            int idUsuarioGenerado = 0;
+            try (PreparedStatement stmtUser = conn.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS)) {
+                stmtUser.setString(1, alumno.getNumDocumento());
+                stmtUser.setString(2, alumno.getNumDocumento()); // Password inicial = DNI
+                stmtUser.executeUpdate();
+
+                try (ResultSet rs = stmtUser.getGeneratedKeys()) {
                     if (rs.next()) {
-                        idAlumnoGenerado = rs.getLong("id_alumno");
+                        idUsuarioGenerado = rs.getInt(1);
                     }
                 }
             }
 
-            // 2. Si es un nuevo postulante, guardamos la ficha completa
-            if (idAlumnoGenerado == null) {
-                try (PreparedStatement psAlumno = con.prepareStatement(sqlInsertAlumno)) {
-                    psAlumno.setString(1, alumno.getNumDocumento());
-                    psAlumno.setString(2, alumno.getNombres());
-                    psAlumno.setString(3, alumno.getApPaterno());
-                    psAlumno.setString(4, alumno.getApMaterno());
-                    psAlumno.setDate(5, java.sql.Date.valueOf(alumno.getFechaNacimiento()));
-                    psAlumno.setString(6, alumno.getCelular());
-                    psAlumno.setString(7, alumno.getCorreo());
-                    psAlumno.setString(8, alumno.getUbigeoNacimiento());
-                    psAlumno.setString(9, alumno.getUbigeoDomicilio());
-                    
-                    // Manejo adecuado de tipos de datos relacionales enteros
-                    if (alumno.getIdGrado() != null) psAlumno.setInt(10, alumno.getIdGrado()); else psAlumno.setNull(10, java.sql.Types.INTEGER);
-                    if (alumno.getIdSeccion() != null) psAlumno.setInt(11, alumno.getIdSeccion()); else psAlumno.setNull(11, java.sql.Types.INTEGER);
-                    
-                    try (ResultSet rsNuevo = psAlumno.executeQuery()) {
-                        if (rsNuevo.next()) {
-                            idAlumnoGenerado = rsNuevo.getLong("id_alumno");
-                        }
-                    }
-                }
+            if (idUsuarioGenerado == 0) {
+                conn.rollback();
+                return false;
             }
 
-            // 3. Vinculación con el Periodo (Ciclo) y la Carrera correspondiente
-            if (idAlumnoGenerado != null) {
-                try (PreparedStatement psPostulante = con.prepareStatement(sqlInsertPostulante)) {
-                    psPostulante.setLong(1, idAlumnoGenerado);
-                    psPostulante.setInt(2, alumno.getIdCarrera());
-                    psPostulante.setInt(3, alumno.getIdPeriodo());
-                    
-                    try (ResultSet rsPost = psPostulante.executeQuery()) {
-                        if (rsPost.next()) {
-                            idPostulanteGenerado = rsPost.getLong("id_postulante");
-                        }
-                    }
-                }
+            // 2. Crear Alumno enlazado
+            try (PreparedStatement stmtAlumno = conn.prepareStatement(sqlAlumno)) {
+                stmtAlumno.setString(1, alumno.getNumDocumento());
+                stmtAlumno.setString(2, alumno.getNombres());
+                stmtAlumno.setString(3, alumno.getApPaterno());
+                stmtAlumno.setString(4, alumno.getApMaterno());
+                stmtAlumno.setDate(5, alumno.getFechaNacimiento());
+                stmtAlumno.setString(6, alumno.getCelular());
+                stmtAlumno.setString(7, alumno.getCorreo());
+                stmtAlumno.setString(8, alumno.getUbigeoNacimiento());
+                stmtAlumno.setString(9, alumno.getUbigeoDomicilio());
+                
+                if (alumno.getIdGrado() != null) stmtAlumno.setInt(10, alumno.getIdGrado()); 
+                else stmtAlumno.setNull(10, java.sql.Types.INTEGER);
+                
+                if (alumno.getIdSeccion() != null) stmtAlumno.setInt(11, alumno.getIdSeccion()); 
+                else stmtAlumno.setNull(11, java.sql.Types.INTEGER);
+                
+                stmtAlumno.setInt(12, idUsuarioGenerado);
+
+                stmtAlumno.executeUpdate();
             }
 
-            con.commit(); // Éxito definitivo en base de datos
-            return idPostulanteGenerado;
+            conn.commit(); // Confirmar transacción
+            return true;
 
         } catch (SQLException e) {
-            if (con != null) {
-                try { con.rollback(); } catch (SQLException ex) { }
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             }
-            LOGGER.log(Level.SEVERE, "[ERROR TRANSACCIÓN] Matrícula compleja abortada", e);
-            return null;
+            System.err.println("Error en AlumnoDAO.registrarAlumnoConUsuario: " + e.getMessage());
+            e.printStackTrace();
         } finally {
-            if (con != null) {
-                try { con.setAutoCommit(true); con.close(); } catch (SQLException ex) { }
-            }
+            ConexionDB.cerrarConexion(conn);
         }
+        return false;
     }
 
+    /**
+     * Lista todos los alumnos registrados en PostgreSQL
+     */
     public List<Alumno> listarAlumnos() {
         List<Alumno> lista = new ArrayList<>();
-        
-        // 1. Obtenemos la conexión con Try-with-resources
-        try (Connection con = ConexionDB.obtenerConexion()) {
-            
-            if (con != null) {
-                // 2. Usamos el QueryBuilder en lugar de escribir "SELECT * FROM..." a mano
-                QueryBuilder query = new QueryBuilder("alumno")
-                                        .orderByDesc("id_alumno");
-                
-                // 3. Ejecutamos el Fetch pasándole nuestra conexión actual
-                try (ResultSet rs = query.fetch(con)) {
-                    
-                    // 4. Mapeamos el resultado a objetos Alumno (Igual que antes)
-                    while (rs.next()) {
-                        Alumno alumno = new Alumno();
-                        alumno.setIdAlumno(rs.getLong("id_alumno"));
-                        alumno.setNumDocumento(rs.getString("num_documento"));
-                        alumno.setNombres(rs.getString("nombres"));
-                        alumno.setApPaterno(rs.getString("ap_paterno"));
-                        alumno.setApMaterno(rs.getString("ap_materno"));
-                        // ... (resto de tus mapeos) ...
-                        
-                        lista.add(alumno);
-                    }
-                }
+        String sql = "SELECT a.*, g.nombre AS grado_nombre, s.nombre AS seccion_nombre FROM public.alumno a " +
+                     "LEFT JOIN public.grado g ON a.id_grado = g.id_grado " +
+                     "LEFT JOIN public.seccion s ON a.id_seccion = s.id_seccion ORDER BY a.id_alumno DESC";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                lista.add(mapearAlumno(rs));
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR] Fallo en la ejecucion SQL al listar.", e);
+            e.printStackTrace();
         }
-        
         return lista;
     }
-    
-    /**
-     * Elimina un alumno de la base de datos según su ID.
-     * @param idAlumno El identificador único del alumno.
-     * @return true si se eliminó correctamente, false en caso de error.
-     */
-    public boolean eliminarAlumno(Long idAlumno) {
-        // La consulta SQL de borrado usando el parámetro seguro (?)
-        String sql = "DELETE FROM alumno WHERE id_alumno = ?";
-        
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            // Inyectamos el ID en la consulta
-            ps.setLong(1, idAlumno);
-            
-            // executeUpdate() devuelve el número de filas afectadas. 
-            // Si es mayor a 0, significa que se borró con éxito.
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
-            
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR] Fallo al eliminar el alumno con ID: " + idAlumno, e);
-            return false;
-        }
-    }
-    
-    /**
-     * Busca un alumno específico por su ID para llenar el formulario de edición.
-     * @param idAlumno
-     */
-    public Alumno obtenerAlumnoPorId(Long idAlumno) {
-        Alumno alumno = null;
-        String sql = "SELECT * FROM alumno WHERE id_alumno = ?";
-        
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setLong(1, idAlumno);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    alumno = new Alumno();
-                    alumno.setIdAlumno(rs.getLong("id_alumno"));
-                    alumno.setNumDocumento(rs.getString("num_documento"));
-                    alumno.setNombres(rs.getString("nombres"));
-                    alumno.setApPaterno(rs.getString("ap_paterno"));
-                    alumno.setApMaterno(rs.getString("ap_materno"));
-                    // (Si tienes más campos como fecha o grado, agrégalos aquí)
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR] Fallo al buscar alumno con ID: " + idAlumno, e);
-        }
-        return alumno;
-    }
-    
-    
-    /**
-     * Extrae todos los datos cruzados (Joins) de la base de datos para pintar el Certificado.
-     * @param numDocumento
-     * @return 
-     */
-    public Alumno obtenerDatosCertificado(String numDocumento) {
-        Alumno certificado = null;
-        
-        // El poder de una base de datos relacional bien estructurada
-        String sql = "SELECT a.num_documento, a.nombres, a.ap_paterno, a.ap_materno, "
-                   + "g.nombre AS nombre_grado, c.nombre AS nombre_carrera, "
-                   + "ar.nombre AS nombre_area, p.nombre_periodo "
-                   + "FROM alumno a "
-                   + "INNER JOIN grado g ON a.id_grado = g.id_grado "
-                   + "INNER JOIN postulante pos ON a.id_alumno = pos.id_alumno "
-                   + "INNER JOIN carrera c ON pos.id_carrera = c.id_carrera "
-                   + "INNER JOIN area ar ON c.id_area = ar.id_area "
-                   + "INNER JOIN periodo p ON pos.id_periodo = p.id_periodo "
-                   + "WHERE a.num_documento = ? "
-                   + "ORDER BY pos.fecha_inscripcion DESC LIMIT 1";
 
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setString(1, numDocumento);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    certificado = new Alumno();
-                    certificado.setNumDocumento(rs.getString("num_documento"));
-                    certificado.setNombres(rs.getString("nombres"));
-                    certificado.setApPaterno(rs.getString("ap_paterno"));
-                    certificado.setApMaterno(rs.getString("ap_materno"));
-                    
-                    // Inyectamos los datos cruzados a nuestro DTO
-                    certificado.setNombreGrado(rs.getString("nombre_grado"));
-                    certificado.setNombreCarrera(rs.getString("nombre_carrera"));
-                    certificado.setNombreArea(rs.getString("nombre_area"));
-                    certificado.setNombrePeriodo(rs.getString("nombre_periodo"));
-                }
+    /**
+     * Obtiene el alumno por su ID primario
+     */
+    public Alumno obtenerAlumnoPorId(Long id) {
+        String sql = "SELECT a.*, g.nombre AS grado_nombre, s.nombre AS seccion_nombre FROM public.alumno a " +
+                     "LEFT JOIN public.grado g ON a.id_grado = g.id_grado " +
+                     "LEFT JOIN public.seccion s ON a.id_seccion = s.id_seccion WHERE a.id_alumno = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return mapearAlumno(rs);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR] Fallo al generar datos del certificado", e);
+            e.printStackTrace();
         }
-        return certificado;
+        return null;
     }
 
     /**
-     * Actualiza los datos de un alumno existente en la base de datos.
-     * @param alumno
-     * @return 
+     * Actualiza los datos básicos de un alumno existente
      */
-    public boolean actualizarAlumno(Alumno alumno) {
-        String sql = "UPDATE alumno SET num_documento = ?, nombres = ?, ap_paterno = ?, ap_materno = ? WHERE id_alumno = ?";
-        
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setString(1, alumno.getNumDocumento());
-            ps.setString(2, alumno.getNombres());
-            ps.setString(3, alumno.getApPaterno());
-            ps.setString(4, alumno.getApMaterno());
-            ps.setLong(5, alumno.getIdAlumno()); // El ID va al final para el WHERE
-            
-            return ps.executeUpdate() > 0;
-            
+    public boolean actualizarAlumno(Alumno a) {
+        String sql = "UPDATE public.alumno SET num_documento=?, nombres=?, ap_paterno=?, ap_materno=? WHERE id_alumno=?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, a.getNumDocumento());
+            stmt.setString(2, a.getNombres());
+            stmt.setString(3, a.getApPaterno());
+            stmt.setString(4, a.getApMaterno());
+            stmt.setLong(5, a.getIdAlumno());
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR] Fallo al actualizar alumno: " + alumno.getIdAlumno(), e);
-            return false;
+            e.printStackTrace();
         }
+        return false;
     }
-    
+
     /**
-     * Calcula el total de postulantes registrados en el sistema.
-     * Ideal para las tarjetas de métricas (KPIs) del Dashboard.
-     * @return 
+     * NUEVO: Actualización Integral de Ficha del Alumno + Carrera en Postulación
+     */
+    public boolean actualizarAlumnoCompleto(Alumno a, int idCarrera, int idPeriodo) {
+        String sqlAlumno = "UPDATE public.alumno SET " +
+                            "num_documento = ?, nombres = ?, ap_paterno = ?, ap_materno = ?, " +
+                            "fecha_nacimiento = ?, celular = ?, correo = ?, id_grado = ?, id_seccion = ? " +
+                            "WHERE id_alumno = ?";
+
+        String sqlPostulante = "UPDATE public.postulante SET id_carrera = ? " +
+                               "WHERE id_alumno = ? AND id_periodo = ?";
+
+        try (Connection conn = ConexionDB.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmtA = conn.prepareStatement(sqlAlumno);
+                 PreparedStatement stmtP = conn.prepareStatement(sqlPostulante)) {
+
+                stmtA.setString(1, a.getNumDocumento());
+                stmtA.setString(2, a.getNombres());
+                stmtA.setString(3, a.getApPaterno());
+                stmtA.setString(4, a.getApMaterno());
+                stmtA.setDate(5, a.getFechaNacimiento());
+                stmtA.setString(6, a.getCelular());
+                stmtA.setString(7, a.getCorreo());
+                stmtA.setInt(8, a.getIdGrado());
+                stmtA.setInt(9, a.getIdSeccion());
+                stmtA.setLong(10, a.getIdAlumno());
+                stmtA.executeUpdate();
+
+                stmtP.setInt(1, idCarrera);
+                stmtP.setLong(2, a.getIdAlumno());
+                stmtP.setInt(3, idPeriodo);
+                stmtP.executeUpdate();
+
+                conn.commit();
+                return true;
+            } catch (SQLException ex) {
+                conn.rollback();
+                ex.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Elimina un alumno de la base de datos
+     */
+    public boolean eliminarAlumno(Long id) {
+        String sql = "DELETE FROM public.alumno WHERE id_alumno = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene los datos del Alumno buscando por id_usuario
+     */
+    public Alumno obtenerPorIdUsuario(int idUsuario) {
+        String sql = "SELECT a.*, g.nombre AS grado_nombre, s.nombre AS seccion_nombre " +
+                     "FROM public.alumno a " +
+                     "LEFT JOIN public.grado g ON a.id_grado = g.id_grado " +
+                     "LEFT JOIN public.seccion s ON a.id_seccion = s.id_seccion " +
+                     "WHERE a.id_usuario = ?";
+        
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, idUsuario);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearAlumno(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Obtiene los datos del Alumno buscando por DNI
+     */
+    public Alumno obtenerPorDni(String dni) {
+        String sql = "SELECT a.*, g.nombre AS grado_nombre, s.nombre AS seccion_nombre " +
+                     "FROM public.alumno a " +
+                     "LEFT JOIN public.grado g ON a.id_grado = g.id_grado " +
+                     "LEFT JOIN public.seccion s ON a.id_seccion = s.id_seccion " +
+                     "WHERE a.num_documento = ?";
+        
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, dni);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearAlumno(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Obtiene el total de alumnos registrados
      */
     public int obtenerTotalAlumnos() {
-        int total = 0;
-        String sql = "SELECT COUNT(*) AS total FROM alumno";
-        
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            
-            if (rs.next()) {
-                total = rs.getInt("total"); // Extraemos el alias 'total'
-            }
-            
+        String sql = "SELECT COUNT(*) FROM public.alumno";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR] Fallo al contar el total de alumnos", e);
+            e.printStackTrace();
         }
-        
-        return total;
+        return 0;
     }
 
     /**
-     * Registra un alumno directamente desde el panel de administración.
-     * Mapea de forma segura los parámetros usando PreparedStatements.
-     * @param nuevoAlumno Objeto con la información recolectada del formulario
-     * @return true si se guardó con éxito, false en caso de excepción
+     * Métodos auxiliares para precargar listas maestras en formularios
      */
-    public boolean registrarAlumno(Alumno nuevoAlumno) {
-        String sql = "INSERT INTO public.alumno (num_documento, nombres, ap_paterno, ap_materno, fecha_nacimiento, celular, correo, id_grado, id_seccion) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setString(1, nuevoAlumno.getNumDocumento());
-            ps.setString(2, nuevoAlumno.getNombres());
-            ps.setString(3, nuevoAlumno.getApPaterno());
-            ps.setString(4, nuevoAlumno.getApMaterno());
-            ps.setDate(5, java.sql.Date.valueOf(nuevoAlumno.getFechaNacimiento()));
-            ps.setString(6, nuevoAlumno.getCelular());
-            ps.setString(7, nuevoAlumno.getCorreo());
-            
-            // Validaciones para prevenir conflictos con enteros nulables
-            if (nuevoAlumno.getIdGrado() != null) ps.setInt(8, nuevoAlumno.getIdGrado()); else ps.setNull(8, java.sql.Types.INTEGER);
-            if (nuevoAlumno.getIdSeccion() != null) ps.setInt(9, nuevoAlumno.getIdSeccion()); else ps.setNull(9, java.sql.Types.INTEGER);
-            
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
-            
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "[ERROR CRÍTICO] Fallo de persistencia al registrar alumno desde panel", e);
-            return false;
-        }
-    }
-    
-    
-    /**
-    * Obtiene todos los grados activos para el formulario
-     * @return 
-    */
     public Map<Integer, String> obtenerGrados() {
-        Map<Integer, String> grados = new LinkedHashMap<>();
-        String sql = "SELECT id_grado, nombre FROM grado WHERE permite_inscripcion = true";
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) grados.put(rs.getInt("id_grado"), rs.getString("nombre"));
-        } catch (SQLException e) { LOGGER.log(Level.SEVERE, "Error grados", e); }
-        return grados;
+        Map<Integer, String> map = new HashMap<>();
+        String sql = "SELECT id_grado, nombre FROM public.grado";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) map.put(rs.getInt("id_grado"), rs.getString("nombre"));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return map;
     }
 
     public Map<Integer, String> obtenerPeriodosActivos() {
-        Map<Integer, String> periodos = new LinkedHashMap<>();
-        String sql = "SELECT id_periodo, nombre_periodo, anio FROM periodo WHERE estado = 'ACTIVO'";
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                String label = rs.getString("nombre_periodo") + " " + rs.getInt("anio");
-                periodos.put(rs.getInt("id_periodo"), label);
-            }
-        } catch (SQLException e) { LOGGER.log(Level.SEVERE, "Error periodos", e); }
-        return periodos;
+        Map<Integer, String> map = new HashMap<>();
+        String sql = "SELECT id_periodo, nombre_periodo FROM public.periodo WHERE estado = 'ACTIVO'";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) map.put(rs.getInt("id_periodo"), rs.getString("nombre_periodo"));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return map;
     }
 
-    public List<Area> obtenerAreas() {
-        List<Area> lista = new ArrayList<>();
-        String sql = "SELECT id_area, nombre FROM area";
-        try (Connection con = ConexionDB.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Area area = new Area();
-                area.setIdArea(rs.getInt("id_area"));
-                area.setNombre(rs.getString("nombre"));
-                lista.add(area);
-            }
+    public Map<Integer, String> obtenerAreas() {
+        Map<Integer, String> map = new HashMap<>();
+        String sql = "SELECT id_area, nombre FROM public.area";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) map.put(rs.getInt("id_area"), rs.getString("nombre"));
         } catch (SQLException e) { e.printStackTrace(); }
-        return lista;
+        return map;
     }
-    
-    
+
+    private Alumno mapearAlumno(ResultSet rs) throws SQLException {
+        Alumno a = new Alumno();
+        a.setIdAlumno(rs.getLong("id_alumno"));
+        a.setNumDocumento(rs.getString("num_documento"));
+        a.setNombres(rs.getString("nombres"));
+        a.setApPaterno(rs.getString("ap_paterno"));
+        a.setApMaterno(rs.getString("ap_materno"));
+        a.setFechaNacimiento(rs.getDate("fecha_nacimiento"));
+        a.setCelular(rs.getString("celular"));
+        a.setCorreo(rs.getString("correo"));
+        a.setUbigeoNacimiento(rs.getString("ubigeo_nacimiento"));
+        a.setUbigeoDomicilio(rs.getString("ubigeo_domicilio"));
+        a.setIdGrado(rs.getObject("id_grado") != null ? rs.getInt("id_grado") : null);
+        a.setIdSeccion(rs.getObject("id_seccion") != null ? rs.getInt("id_seccion") : null);
+        a.setIdUsuario(rs.getObject("id_usuario") != null ? rs.getInt("id_usuario") : null);
+        a.setNombreGrado(rs.getString("grado_nombre"));
+        a.setNombreSeccion(rs.getString("seccion_nombre"));
+        return a;
+    }
 }

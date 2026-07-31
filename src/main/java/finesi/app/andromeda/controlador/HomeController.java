@@ -5,21 +5,20 @@
 package finesi.app.andromeda.controlador;
 
 import finesi.app.andromeda.dao.AlumnoDAO;
-import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+
 /**
- * Controlador principal encargado de precargar los datos maestros
- * en el formulario de inscripción pública.
+ * Controlador principal encargado de cargar la portada y formularios.
  */
 @WebServlet(name = "HomeController", urlPatterns = {"/home", ""})
 public class HomeController extends HttpServlet {
 
-    // Instanciamos de forma segura el DAO real que acabamos de compilar
     private final AlumnoDAO alumnoDAO = new AlumnoDAO();
 
     @Override
@@ -27,24 +26,21 @@ public class HomeController extends HttpServlet {
             throws ServletException, IOException {
         
         try {
-            // 1. Extraemos los mapas y listas reales desde PostgreSQL
+            // Precarga opcional de listas si el DAO cuenta con metodos maestros
             var grados = alumnoDAO.obtenerGrados();
             var periodos = alumnoDAO.obtenerPeriodosActivos();
             var areas = alumnoDAO.obtenerAreas();
 
-            // 2. Inyectamos los datos en el objeto request con nombres idénticos a los del JSP
             request.setAttribute("mapaGrados", grados);
             request.setAttribute("mapaPeriodos", periodos);
             request.setAttribute("listaAreas", areas);
 
-            // 3. Despachamos el flujo directamente hacia la vista index.jsp
-            request.getRequestDispatcher("index.jsp").forward(request, response);
-            
         } catch (Exception e) {
-            // Log de seguridad en consola por si la conexión a la BD llega a fallar aquí
-            System.err.println("[ERROR ANDROMEDA] Error crítico en HomeController al cargar maestros: " + e.getMessage());
-            e.printStackTrace();
-            response.sendRedirect("index.jsp?error=ErrorInternoServidor");
+            // Manejo preventivo si los catálogos aún no están poblados
+            System.out.println("[INFO ANDROMEDA] Cargando portada inicial (sin maestras o conectando): " + e.getMessage());
         }
+
+        // Redirige directamente al index.jsp principal
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }

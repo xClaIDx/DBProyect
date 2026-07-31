@@ -1,32 +1,65 @@
 package finesi.app.andromeda.modelo;
 
-public class Usuario {
+import java.io.Serializable;
+
+public class Usuario implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int idUsuario;
     private String username;
-    private String rol;
+    private String passwordHash;
+    private String rol; // 'ADMIN', 'DOCENTE', 'ALUMNO'
     private boolean estado;
 
-    // Constructor vacío
-    public Usuario() {}
+    public Usuario() {
+    }
 
-    // Constructor con parámetros
-    public Usuario(int idUsuario, String username, String rol, boolean estado) {
+    public Usuario(int idUsuario, String username, String passwordHash, String rol, boolean estado) {
         this.idUsuario = idUsuario;
         this.username = username;
+        this.passwordHash = passwordHash;
         this.rol = rol;
         this.estado = estado;
     }
 
     // Getters y Setters
-    public int getIdUsuario() { return idUsuario; }
-    public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
+    public int getIdUsuario() {
+        return idUsuario;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
 
-    public String getRol() { return rol; }
-    public void setRol(String rol) { this.rol = rol; }
+    public String getUsername() {
+        return username;
+    }
 
-    public boolean isEstado() { return estado; }
-    public void setEstado(boolean estado) { this.estado = estado; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
 }
