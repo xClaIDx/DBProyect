@@ -55,301 +55,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuadro General de Méritos y Ranking | Gran Unidad Escolar Andrómeda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            /* Base Colegio Nacional */
+            --navy: #15304F;        
+            --navy-soft: #1E4269;   
+            --bg: #F3F1EB;          
+            --panel: #FFFFFF;       
+            --ink: #212A26;         
+            --ink-soft: #64716A;    
+            --line: #E4E0D4;        
+
+            /* Acentos semánticos */
+            --green: #178F55;       
+            --green-light: #DEF5E8;
+            --gold: #E0A72E;        
+            --gold-light: #FCF0D6;
+            --red: #E14F3D;         
+            --red-light: #FDE1DC;
+        }
+
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f8f9fa;
-            color: #1a2332;
-            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
         }
-        
-        /* Navegación */
+
+        /* ---------------- NAVEGACIÓN INSTITUCIONAL ---------------- */
         .navbar {
-            background: linear-gradient(135deg, #0f3460 0%, #162a47 100%);
-            box-shadow: 0 2px 8px rgba(15, 52, 96, 0.12);
-            border-bottom: 3px solid #8b2d3f;
-        }
-        
-        .navbar-title {
-            color: #ffffff;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            font-size: 1.1rem;
-        }
-        
-        .navbar-badge {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: #d4d9e3;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            font-weight: 600;
-        }
-        
-        .btn-back {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #e8ecf3;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 0.6rem 1.2rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        .btn-back:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Panel de Filtros */
-        .filter-panel {
-            background: #ffffff;
-            border: 1px solid #e0e6ed;
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #0f3460;
-        }
-        
-        .filter-group {
+            background-color: var(--navy);
+            padding: 16px 40px;
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Contenedor del Logo (Configurado a 100px y mimetizado) */
+        .crest {
+            height: 100px;
+            width: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }
+
+        .crest img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .crest-title {
+            font-family: 'Source Serif 4', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--panel);
+            line-height: 1.2;
+            letter-spacing: 0.02em;
         }
         
-        .filter-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #2d3f5b;
+        .crest-subtitle {
+            font-size: 11px;
+            color: var(--line);
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.05em;
+            margin-top: 2px;
         }
-        
-        .filter-select {
-            padding: 0.7rem 0.9rem;
-            font-size: 0.9rem;
-            border: 1px solid #d0d7e0;
-            border-radius: 5px;
-            background-color: #f8f9fb;
-            color: #1a2332;
+
+        /* ---------------- BOTONES ---------------- */
+        .btn {
+            display: inline-block;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
             font-weight: 500;
-            transition: all 0.3s ease;
+            padding: 10px 18px;
+            border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            letter-spacing: 0.03em;
         }
-        
-        .filter-select:hover {
-            border-color: #0f3460;
-            background-color: #ffffff;
+
+        .btn-green { background: var(--green); color: var(--panel); }
+        .btn-green:hover { background: #127243; }
+
+        .btn-nav-outline { background: transparent; border: 1px solid var(--line); color: var(--panel); }
+        .btn-nav-outline:hover { background: var(--navy-soft); border-color: var(--panel); }
+
+        .btn-filter {
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: var(--panel);
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        
-        .filter-select:focus {
-            outline: none;
-            border-color: #0f3460;
-            box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
-            background-color: #ffffff;
+
+        .btn-filter:hover {
+            border-color: var(--navy);
+            background: var(--bg);
         }
-        
+
+        .btn-filter.active {
+            background: var(--navy);
+            color: var(--panel);
+            border-color: var(--navy);
+        }
+
+        /* ---------------- ESTRUCTURA GENERAL Y PANELES ---------------- */
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .panel-accent {
+            border-top: 4px solid var(--navy);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            color: var(--ink-soft);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--panel);
+            box-sizing: border-box;
+        }
+
+        .form-control:focus { outline: none; border-color: var(--navy); }
+
         .filter-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
+            gap: 8px;
         }
-        
-        .btn-filter {
-            padding: 0.6rem 1rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 1px solid #d0d7e0;
-            border-radius: 5px;
-            background-color: #f8f9fb;
-            color: #2d3f5b;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        .btn-filter:hover {
-            border-color: #0f3460;
-            background-color: #eff3f8;
-        }
-        
-        .btn-filter.active {
-            background-color: #0f3460;
-            color: #ffffff;
-            border-color: #0f3460;
-            box-shadow: 0 2px 6px rgba(15, 52, 96, 0.2);
-        }
-        
-        /* Botón Exportar */
-        .btn-export {
-            background: linear-gradient(135deg, #2d5f3f 0%, #1f4530 100%);
-            color: #ffffff;
-            border: none;
-            padding: 0.7rem 1.4rem;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-export:hover {
-            box-shadow: 0 4px 8px rgba(45, 95, 63, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        /* Tabla */
-        .table-container {
-            background: #ffffff;
-            border: 1px solid #e0e6ed;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-        
-        thead {
-            background: linear-gradient(135deg, #0f3460 0%, #162a47 100%);
-            color: #ffffff;
-        }
-        
+
+        /* ---------------- TABLA DE RESULTADOS ---------------- */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+
         th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 700;
-            font-size: 0.85rem;
-            letter-spacing: 0.3px;
             text-transform: uppercase;
-            border-bottom: 2px solid #162a47;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            color: var(--ink-soft);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 16px;
+            font-weight: 500;
+            background: var(--panel);
         }
-        
-        th:nth-child(1),
-        th:nth-child(6),
-        th:nth-child(7) {
-            text-align: center;
-        }
-        
-        tbody tr {
-            border-bottom: 1px solid #e8ecf3;
-            transition: background-color 0.2s ease;
-        }
-        
-        tbody tr:hover {
-            background-color: #f8f9fb;
-        }
-        
-        tbody tr.top-3 {
-            background-color: #fef8f0;
-        }
-        
-        tbody tr.top-3:hover {
-            background-color: #fef1e6;
-        }
-        
+
         td {
-            padding: 1rem;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+            color: var(--ink);
+            vertical-align: middle;
         }
-        
-        td:nth-child(1),
-        td:nth-child(6),
-        td:nth-child(7) {
-            text-align: center;
+
+        tr:hover td { background-color: var(--bg); }
+
+        /* Fila de Reconocimiento Top 3 */
+        tr.top-3-row td {
+            background-color: var(--gold-light);
         }
-        
+
+        tr.top-3-row:hover td {
+            background-color: #F8E8C7;
+        }
+
         /* Badges */
         .badge {
             display: inline-block;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            border: 1px solid;
-        }
-        
-        .badge-top3 {
-            background-color: #8b2d3f;
-            color: #ffffff;
-            border-color: #6b1f2f;
-        }
-        
-        .badge-evaluated {
-            background-color: #e8ecf3;
-            color: #2d3f5b;
-            border-color: #d0d7e0;
-        }
-        
-        .badge-top3-status {
-            background-color: #fff3e0;
-            color: #7d4a1f;
-            border-color: #ffe0b2;
-        }
-        
-        /* Texto Monoespaciado */
-        .text-mono {
-            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            padding: 4px 10px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        
-        /* Estado Sin Datos */
+
+        .badge-gold {
+            background-color: var(--gold);
+            color: var(--panel);
+            font-family: 'Source Serif 4', serif;
+        }
+
+        .badge-evaluated {
+            background-color: var(--bg);
+            color: var(--ink-soft);
+            border: 1px solid var(--line);
+        }
+
+        .badge-top3-status {
+            background-color: var(--gold-light);
+            color: #8A6200;
+            border: 1px solid var(--gold);
+        }
+
+        .td-bold { font-weight: 600; color: var(--navy); }
+        .td-mono { font-family: monospace; font-size: 13px; font-weight: 600; color: var(--navy); }
+
         .empty-state {
             text-align: center;
-            padding: 3rem 1rem;
-            color: #7a8a9e;
-            font-size: 0.95rem;
+            padding: 48px 16px;
+            color: var(--ink-soft);
         }
-        
-        /* Responsivo */
-        @media (max-width: 768px) {
-            .filter-panel {
-                padding: 1.5rem;
-            }
-            
-            .filter-buttons {
-                gap: 0.6rem;
-            }
-            
-            .btn-filter {
-                flex: 1;
-                min-width: calc(50% - 0.4rem);
-            }
-            
-            th, td {
-                padding: 0.75rem 0.5rem;
-                font-size: 0.85rem;
-            }
-            
-            .badge {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.7rem;
-            }
+
+        @media (max-width: 900px) {
+            .navbar { padding: 16px 20px; }
+            .container { padding: 20px 16px; }
+            .filter-grid { grid-template-columns: 1fr; }
         }
     </style>
     <script>
@@ -360,31 +333,30 @@
 </head>
 <body>
 
-    <!-- NAVEGACIÓN -->
     <nav class="navbar">
-        <div class="flex justify-between items-center px-8 py-4" style="gap: 2rem;">
-            <div class="flex items-center" style="gap: 1.5rem;">
-                <span class="navbar-badge">G.U.E. Andrómeda</span>
-                <h1 class="navbar-title">Cuadro General de Méritos y Ranking</h1>
+        <div class="brand-container">
+            <div class="crest">
+                <img src="${pageContext.request.contextPath}/assets/images/logo.svg" alt="Escudo G.U.E. Andrómeda">
             </div>
-            <a href="${pageContext.request.contextPath}/alumno/dashboard.jsp" class="btn-back">
-                Volver al Portal
-            </a>
+            <div>
+                <div class="crest-title">G.U.E. Andrómeda</div>
+                <div class="crest-subtitle">Cuadro General de Méritos y Ranking</div>
+            </div>
         </div>
+        <a href="${pageContext.request.contextPath}/alumno/dashboard.jsp" class="btn btn-nav-outline">
+            Volver al Portal
+        </a>
     </nav>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="container mx-auto px-6 py-8" style="max-width: 1400px;">
+    <div class="container">
 
-        <!-- PANEL DE FILTROS -->
-        <div class="filter-panel">
-            <form id="filtroForm" action="ranking.jsp" method="GET" style="display: flex; flex-direction: column; gap: 2rem;">
+        <div class="panel panel-accent">
+            <form id="filtroForm" action="ranking.jsp" method="GET" style="margin: 0;">
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1rem;">
-                    <!-- Filtro Período -->
-                    <div class="filter-group">
-                        <label class="filter-label">Simulacro / Período:</label>
-                        <select name="idPeriodo" onchange="aplicarFiltros()" class="filter-select">
+                <div class="filter-grid">
+                    <div>
+                        <label class="form-label">Simulacro / Período Académico:</label>
+                        <select name="idPeriodo" onchange="aplicarFiltros()" class="form-control" style="font-weight: 600; color: var(--navy);">
                             <option value="0">-- Todos los Simulacros Históricos --</option>
                             <% for (Periodo p : listaPeriodos) { %>
                                 <option value="<%= p.getIdPeriodo() %>" <%= (idPeriodoFiltro != null && idPeriodoFiltro == p.getIdPeriodo()) ? "selected" : "" %>>
@@ -394,9 +366,8 @@
                         </select>
                     </div>
 
-                    <!-- Filtro Área Académica -->
-                    <div class="filter-group">
-                        <label class="filter-label">Área Académica:</label>
+                    <div>
+                        <label class="form-label">Área Académica:</label>
                         <input type="hidden" name="area" id="areaInput" value="<%= areaFiltro %>">
                         <div class="filter-buttons">
                             <button type="button" onclick="document.getElementById('areaInput').value='TODAS'; aplicarFiltros();" class="btn-filter <%= "TODAS".equalsIgnoreCase(areaFiltro) ? "active" : "" %>">
@@ -415,69 +386,69 @@
                     </div>
                 </div>
 
-                <!-- Botón Exportar -->
-                <div style="display: flex; justify-content: flex-end;">
-                    <a href="${pageContext.request.contextPath}/exportarExcel?idPeriodo=<%= (idPeriodoFiltro != null ? idPeriodoFiltro : 0) %>&area=<%= areaFiltro %>" class="btn-export">
+                <div style="display: flex; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 16px;">
+                    <a href="${pageContext.request.contextPath}/exportarExcel?idPeriodo=<%= (idPeriodoFiltro != null ? idPeriodoFiltro : 0) %>&area=<%= areaFiltro %>" class="btn btn-green">
                         Exportar Cuadro a Excel
                     </a>
                 </div>
             </form>
         </div>
 
-        <!-- TABLA DE RESULTADOS -->
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Puesto</th>
-                        <th>DNI</th>
-                        <th>Postulante</th>
-                        <th>Área / Período</th>
-                        <th>Carrera Destino</th>
-                        <th>Puntaje Total</th>
-                        <th>Condición</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (listaFiltrada != null && !listaFiltrada.isEmpty()) { 
-                        for (ResultadoDetalle r : listaFiltrada) { 
-                            boolean esTop3 = (r.getPosicionGeneral() != null && r.getPosicionGeneral() <= 3 && r.getPosicionGeneral() > 0);
-                    %>
-                        <tr class="<%= esTop3 ? "top-3" : "" %>">
-                            <td>
-                                <% if (esTop3) { %>
-                                    <span class="badge badge-top3">Puesto N° <%= r.getPosicionGeneral() %></span>
-                                <% } else { %>
-                                    <span style="color: #2d3f5b; font-weight: 700;">N° <%= r.getPosicionGeneral() %></span>
-                                <% } %>
-                            </td>
-                            <td class="text-mono" style="color: #1a2332;"><%= r.getNumDocumento() %></td>
-                            <td style="font-weight: 600; color: #1a2332;"><%= r.getNombreAlumno() %></td>
-                            <td>
-                                <div style="font-weight: 700; color: #1a2332; margin-bottom: 0.3rem;"><%= r.getAreaAcademica() %></div>
-                                <div style="font-size: 0.85rem; color: #7a8a9e;"><%= r.getNombreExamen() %></div>
-                            </td>
-                            <td style="color: #4a5f78; font-size: 0.9rem;"><%= r.getCarreraProfesional() %></td>
-                            <td style="font-weight: 700; color: #1a2332;"><%= r.getPuntajeTotal() %> pts</td>
-                            <td>
-                                <% if (esTop3) { %>
-                                    <span class="badge badge-top3-status">Ingresante Top 3</span>
-                                <% } else { %>
-                                    <span class="badge badge-evaluated">Evaluado</span>
-                                <% } %>
-                            </td>
-                        </tr>
-                    <%  } 
-                    } else { %>
+        <div class="panel" style="padding: 0; overflow: hidden;">
+            <div class="table-responsive">
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="7" class="empty-state">
-                                <strong>No hay calificaciones registradas</strong><br>
-                                para los filtros seleccionados.
-                            </td>
+                            <th style="text-align: center;">Puesto</th>
+                            <th>DNI</th>
+                            <th>Postulante</th>
+                            <th>Área / Período</th>
+                            <th>Carrera Destino</th>
+                            <th style="text-align: center;">Puntaje Total</th>
+                            <th style="text-align: center;">Condición</th>
                         </tr>
-                    <% } %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% if (listaFiltrada != null && !listaFiltrada.isEmpty()) { 
+                            for (ResultadoDetalle r : listaFiltrada) { 
+                                boolean esTop3 = (r.getPosicionGeneral() != null && r.getPosicionGeneral() <= 3 && r.getPosicionGeneral() > 0);
+                        %>
+                            <tr class="<%= esTop3 ? "top-3-row" : "" %>">
+                                <td style="text-align: center;">
+                                    <% if (esTop3) { %>
+                                        <span class="badge badge-gold">Puesto N° <%= r.getPosicionGeneral() %></span>
+                                    <% } else { %>
+                                        <span style="color: var(--navy); font-weight: 600;">N° <%= r.getPosicionGeneral() %></span>
+                                    <% } %>
+                                </td>
+                                <td class="td-mono"><%= r.getNumDocumento() %></td>
+                                <td class="td-bold"><%= r.getNombreAlumno() %></td>
+                                <td>
+                                    <div style="font-weight: 600; color: var(--navy);"><%= r.getAreaAcademica() %></div>
+                                    <div style="font-size: 11px; color: var(--ink-soft);"><%= r.getNombreExamen() %></div>
+                                </td>
+                                <td style="color: var(--ink-soft);"><%= r.getCarreraProfesional() %></td>
+                                <td style="text-align: center; font-weight: 700; color: var(--navy);"><%= r.getPuntajeTotal() %> pts</td>
+                                <td style="text-align: center;">
+                                    <% if (esTop3) { %>
+                                        <span class="badge badge-top3-status">Ingresante Top 3</span>
+                                    <% } else { %>
+                                        <span class="badge badge-evaluated">Evaluado</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <%  } 
+                        } else { %>
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <strong>No hay calificaciones registradas</strong><br>
+                                    para los filtros seleccionados.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>

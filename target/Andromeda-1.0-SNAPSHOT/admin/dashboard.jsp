@@ -53,214 +53,452 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración | Gran Unidad Escolar Andrómeda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Panel de Administración | G.U.E. Andrómeda</title>
+    
     <style>
-        body { 
-            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            background: #f0f2f5;
+        @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            /* Base Colegio Nacional */
+            --navy: #15304F;        
+            --navy-soft: #1E4269;   
+            --bg: #F3F1EB;          
+            --panel: #FFFFFF;       
+            --ink: #212A26;         
+            --ink-soft: #64716A;    
+            --line: #E4E0D4;        
+
+            /* Acentos semánticos - Versión viva */
+            --green: #178F55;       
+            --green-light: #DEF5E8;
+            --gold: #E0A72E;        
+            --gold-light: #FCF0D6;
+            --red: #E14F3D;         
+            --red-light: #FDE1DC;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* Utilidades JS */
+        .hidden { display: none !important; }
+        .flex { display: flex !important; }
+
+        /* Navegación */
+        .navbar {
+            background-color: var(--navy);
+            color: #E9E7DD;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Contenedor del Logo SVG */
+        .crest {
+            height: 100px;            /* <- Alto de 100px */
+            width: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;  /* <- Mimetizado sin recuadro blanco */
+        }
+
+        .crest img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3)); /* Sombra elegante */
+        }
+
+        .crest-title {
+            font-family: 'Source Serif 4', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--panel);
         }
         
-        /* Estilo moderno para tarjetas */
-        .card-modern {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: box-shadow 0.2s ease;
+        .crest-subtitle {
+            font-size: 11px;
+            color: var(--line);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            font-size: 13px;
+            color: var(--line);
+        }
+        .user-info b {
+            color: var(--panel);
+            font-weight: 500;
+        }
+
+        /* Layout principal */
+        main {
+            padding: 32px 40px 48px;
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        /* Tarjetas */
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .title-with-crest {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Source Serif 4', serif;
+            font-weight: 600;
+            margin: 0;
+            color: var(--navy);
+        }
+
+        h2 { font-size: 22px; }
+        
+        .panel-desc {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin-top: 4px;
+        }
+
+        /* Botones */
+        .btn {
+            display: inline-block;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: background 0.2s;
         }
         
-        .card-modern:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+        .btn-navy { background: var(--navy); color: var(--panel); }
+        .btn-navy:hover { background: var(--navy-soft); }
+        
+        .btn-gold { background: var(--gold); color: var(--panel); }
+        .btn-gold:hover { background: #C28E22; }
+        
+        .btn-green { background: var(--green); color: var(--panel); }
+        .btn-green:hover { background: #127243; }
+        
+        .btn-red { background: var(--red); color: var(--panel); }
+        .btn-red:hover { background: #C53D2C; }
+
+        .btn-outline { background: transparent; border-color: var(--line); color: var(--ink); }
+        .btn-outline:hover { background: var(--bg); }
+        
+        .btn-nav-outline { background: transparent; border-color: var(--line); color: var(--panel); }
+        .btn-nav-outline:hover { background: var(--navy-soft); border-color: var(--panel); }
+
+        /* Tarjetas de Acción Rápida (Estilo KPI) */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .action-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 20px;
+            border-left: 3px solid var(--navy);
         }
         
-        /* Botones con estilo más vibrante */
-        .btn-primary {
-            background: #003366;
-            color: white;
-            transition: background 0.2s ease;
+        .action-card.green { border-left-color: var(--green); }
+        .action-card.gold { border-left-color: var(--gold); }
+
+        .action-label {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            color: var(--ink-soft);
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* Tabla */
+        .table-responsive {
+            overflow-x: auto;
         }
         
-        .btn-primary:hover {
-            background: #002244;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            color: var(--ink-soft);
+            border-bottom: 1px solid var(--line);
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+            color: var(--ink);
+        }
+
+        tr:hover td {
+            background-color: var(--bg);
         }
         
-        .btn-success {
-            background: #006633;
-            color: white;
-            transition: background 0.2s ease;
+        .td-bold { font-weight: 500; color: var(--navy); }
+
+        /* Formularios y Filtros */
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .form-label {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            color: var(--ink-soft);
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--panel);
+            box-sizing: border-box;
         }
         
-        .btn-success:hover {
-            background: #004d26;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--navy);
+        }
+
+        /* Badges de alerta */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            border-left: 3px solid;
         }
         
-        .btn-danger {
-            background: #cc0000;
-            color: white;
-            transition: background 0.2s ease;
+        .alert-success { background: var(--green-light); color: var(--green); border-left-color: var(--green); }
+        .alert-danger { background: var(--red-light); color: var(--red); border-left-color: var(--red); }
+
+        /* Modales */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(21, 48, 79, 0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--panel);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            border-top: 4px solid var(--navy);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .modal-content.border-gold { border-top-color: var(--gold); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--ink-soft);
+            cursor: pointer;
         }
         
-        .btn-danger:hover {
-            background: #990000;
-        }
+        .close-btn:hover { color: var(--ink); }
+
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-row { margin-bottom: 16px; }
         
-        .btn-warning {
-            background: #cc6600;
-            color: white;
-            transition: background 0.2s ease;
+        .modal-footer {
+            border-top: 1px solid var(--line);
+            padding-top: 16px;
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
         }
-        
-        .btn-warning:hover {
-            background: #995200;
-        }
-        
-        /* Barra de navegación estilo universidad */
-        .navbar-university {
-            background: #003366;
-            border-bottom: 4px solid #cc9900;
-        }
-        
-        /* Cabecera de tabla estilo universidad */
-        .table-header {
-            background: #003366;
-            color: white;
-        }
-        
-        /* Enlaces de navegación */
-        .nav-link {
-            color: #ffcc00;
-            transition: color 0.2s ease;
-        }
-        
-        .nav-link:hover {
-            color: #ffdd33;
-        }
-        
-        /* Badges y etiquetas */
-        .badge-primary {
-            background: #003366;
-            color: white;
-        }
-        
-        .badge-success {
-            background: #006633;
-            color: white;
-        }
-        
-        /* Bordes decorativos */
-        .border-accent {
-            border-left: 4px solid #cc9900;
-        }
-        
-        .border-accent-blue {
-            border-left: 4px solid #003366;
-        }
-        
-        .border-accent-green {
-            border-left: 4px solid #006633;
-        }
-        
-        .border-accent-orange {
-            border-left: 4px solid #cc6600;
-        }
-        
-        .border-accent-red {
-            border-left: 4px solid #cc0000;
+
+        @media (max-width: 900px) {
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+            .panel-header { flex-direction: column; }
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-    <!-- NAVEGACIÓN PRINCIPAL - Estilo Universidad -->
-    <nav class="navbar-university text-white px-8 py-4 flex flex-wrap justify-between items-center">
-        <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-                <span class="text-xs uppercase tracking-widest bg-[#cc9900] text-[#003366] px-3 py-1.5 rounded font-bold">G.U.E. Andrómeda</span>
-                <span class="font-bold text-lg tracking-wide uppercase text-white hidden md:inline">Panel de Admisión</span>
+    <nav class="navbar">
+        <div class="brand-container">
+            <div class="crest">
+                <img src="${pageContext.request.contextPath}/assets/images/logo.svg" alt="Escudo G.U.E. Andrómeda">
+            </div>
+            <div>
+                <div class="crest-title">G.U.E. Andrómeda</div>
+                <div class="crest-subtitle">Panel de Admisión</div>
             </div>
         </div>
-        <div class="flex items-center space-x-3 flex-wrap gap-2 mt-2 md:mt-0">
-            <a href="${pageContext.request.contextPath}/admin/docentes" 
-               class="bg-[#cc9900] hover:bg-[#b38800] text-[#003366] text-xs font-bold py-2 px-4 rounded transition">
+        <div class="nav-links">
+            <a href="${pageContext.request.contextPath}/admin/docentes" class="btn btn-gold">
                 Gestionar Docentes
             </a>
-            <a href="${pageContext.request.contextPath}/ranking.jsp" target="_blank" 
-               class="bg-transparent border border-white hover:bg-white hover:text-[#003366] text-white px-4 py-2 rounded text-xs font-bold transition">
+            <a href="${pageContext.request.contextPath}/ranking.jsp" target="_blank" class="btn btn-nav-outline">
                 Portal Rankings
             </a>
-            <span class="text-xs text-[#99bbdd] hidden sm:inline">Usuario: <b class="text-white"><%= u.getUsername() %></b></span>
-            <a href="${pageContext.request.contextPath}/index.jsp?estado=logout" 
-               class="bg-[#cc0000] hover:bg-[#990000] text-white px-4 py-2 rounded text-xs font-bold transition">
+            <span class="user-info">Usuario: <b><%= u.getUsername() %></b></span>
+            <a href="${pageContext.request.contextPath}/index.jsp?estado=logout" class="btn btn-red">
                 Cerrar Sesión
             </a>
         </div>
     </nav>
 
-    <div class="container mx-auto px-6 py-8">
-
-        <!-- MENSAJES DE SESIÓN -->
+    <main>
         <% if (session.getAttribute("msgExitoAdmin") != null) { %>
-            <div class="bg-green-50 border-l-4 border-[#006633] text-[#004d26] p-4 rounded mb-6 font-medium text-sm shadow-sm">
+            <div class="alert alert-success">
                 <%= session.getAttribute("msgExitoAdmin") %>
             </div>
             <% session.removeAttribute("msgExitoAdmin"); %>
         <% } %>
 
         <% if (session.getAttribute("msgErrorAdmin") != null) { %>
-            <div class="bg-red-50 border-l-4 border-[#cc0000] text-[#990000] p-4 rounded mb-6 font-medium text-sm shadow-sm">
+            <div class="alert alert-danger">
                 <%= session.getAttribute("msgErrorAdmin") %>
             </div>
             <% session.removeAttribute("msgErrorAdmin"); %>
         <% } %>
 
-        <!-- TARJETAS DE ACCIONES RÁPIDAS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="card-modern p-5 border-accent">
-                <h4 class="text-xs uppercase text-[#003366] font-bold tracking-wider">Gestión de Periodos</h4>
-                <button onclick="toggleModal('modalNuevoPeriodo')" 
-                        class="mt-3 w-full btn-primary px-3 py-2.5 rounded text-xs font-bold transition cursor-pointer">
+        <div class="actions-grid">
+            <div class="action-card">
+                <span class="action-label">Gestión de Periodos</span>
+                <button onclick="toggleModal('modalNuevoPeriodo')" class="btn btn-navy" style="width: 100%;">
                     Crear Periodo Examen
                 </button>
             </div>
 
-            <div class="card-modern p-5 border-accent-blue">
-                <h4 class="text-xs uppercase text-[#003366] font-bold tracking-wider">Aulas y Supervisores</h4>
-                <button onclick="toggleModal('modalAsignarAula')" 
-                        class="mt-3 w-full btn-primary px-3 py-2.5 rounded text-xs font-bold transition cursor-pointer">
+            <div class="action-card">
+                <span class="action-label">Aulas y Supervisores</span>
+                <button onclick="toggleModal('modalAsignarAula')" class="btn btn-navy" style="width: 100%;">
                     Asignar Aula / Supervisor
                 </button>
             </div>
 
-            <div class="card-modern p-5 border-accent-orange">
-                <h4 class="text-xs uppercase text-[#cc6600] font-bold tracking-wider">Carreras y Áreas</h4>
-                <button onclick="toggleModal('modalNuevaCarrera')" 
-                        class="mt-3 w-full btn-warning px-3 py-2.5 rounded text-xs font-bold transition cursor-pointer">
+            <div class="action-card gold">
+                <span class="action-label">Carreras y Áreas</span>
+                <button onclick="toggleModal('modalNuevaCarrera')" class="btn btn-gold" style="width: 100%;">
                     Crear Carrera / Área
                 </button>
             </div>
 
-            <div class="card-modern p-5 border-accent-green">
-                <h4 class="text-xs uppercase text-[#006633] font-bold tracking-wider">Reportes de Evaluación</h4>
-                <a href="${pageContext.request.contextPath}/ranking.jsp" 
-                   class="mt-3 block text-center btn-success px-3 py-2.5 rounded text-xs font-bold transition">
+            <div class="action-card green">
+                <span class="action-label">Reportes de Evaluación</span>
+                <a href="${pageContext.request.contextPath}/ranking.jsp" class="btn btn-green" style="width: 100%; display: block; box-sizing: border-box;">
                     Exportar Rankings
                 </a>
             </div>
         </div>
 
-        <!-- TABLA DE ESTUDIANTES -->
-        <div class="card-modern p-6 mb-8">
-            <div class="flex flex-col lg:flex-row justify-between items-center mb-6 gap-4 border-b border-gray-200 pb-4">
-                <div>
-                    <h3 class="text-lg font-bold text-[#003366]">Directorio de Estudiantes Inscritos</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">Gestión de información académica y asignación de postulaciones</p>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="title-with-crest">
+                    <div class="crest" style="width: 34px; height: 34px;">
+                        <img src="${pageContext.request.contextPath}/assets/images/logo.png" alt="Escudo G.U.E. Andrómeda">
+                    </div>
+                    <div>
+                        <h2>Directorio de Estudiantes Inscritos</h2>
+                        <div class="panel-desc">Gestión de información académica y asignación de postulaciones</div>
+                    </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                    <form action="${pageContext.request.contextPath}/admin/dashboard.jsp" method="GET" id="formFiltroPeriodo" class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-[#003366] uppercase">Simulacro:</label>
-                        <select name="idPeriodo" onchange="document.getElementById('formFiltroPeriodo').submit()" 
-                                class="px-3 py-2 border border-gray-300 rounded text-xs font-bold text-[#003366] bg-white focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                <div class="filter-group">
+                    <form action="${pageContext.request.contextPath}/admin/dashboard.jsp" method="GET" id="formFiltroPeriodo" style="display: flex; align-items: center; gap: 8px;">
+                        <label class="form-label" style="margin: 0;">Simulacro:</label>
+                        <select name="idPeriodo" onchange="document.getElementById('formFiltroPeriodo').submit()" class="form-control" style="width: auto;">
                             <option value="0">Todos los Períodos</option>
                             <% for (Periodo per : listaPeriodos) { %>
                                 <option value="<%= per.getIdPeriodo() %>" <%= (idPeriodoFiltro == per.getIdPeriodo()) ? "selected" : "" %>>
@@ -270,52 +508,44 @@
                         </select>
                     </form>
 
-                    <div class="w-full sm:w-64">
-                        <input type="text" id="inputBuscar" onkeyup="filtrarTabla()" 
-                               placeholder="Buscar por DNI o Apellidos..." 
-                               class="w-full px-3.5 py-2 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent">
-                    </div>
+                    <input type="text" id="inputBuscar" onkeyup="filtrarTabla()" placeholder="Buscar por DNI o Apellidos..." class="form-control" style="width: 260px;">
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table id="tablaAlumnos" class="w-full text-sm text-left border border-gray-200">
-                    <thead class="text-xs uppercase table-header">
+            <div class="table-responsive">
+                <table id="tablaAlumnos">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-3">ID Post.</th>
-                            <th class="px-4 py-3">DNI</th>
-                            <th class="px-4 py-3">Estudiante</th>
-                            <th class="px-4 py-3">Período Académico</th>
-                            <th class="px-4 py-3">Área</th>
-                            <th class="px-4 py-3">Carrera Destino</th>
-                            <th class="px-4 py-3 text-center">Acciones</th>
+                            <th>ID Post.</th>
+                            <th>DNI</th>
+                            <th>Estudiante</th>
+                            <th>Período Académico</th>
+                            <th>Área</th>
+                            <th>Carrera Destino</th>
+                            <th style="text-align: right;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% if (postulantesBD != null && !postulantesBD.isEmpty()) { 
                             for (Postulante p : postulantesBD) { %>
-                            <tr class="border-b border-gray-200 hover:bg-blue-50 transition text-xs">
-                                <td class="px-4 py-3 font-bold text-[#003366]"><%= p.getIdPostulante() %></td>
-                                <td class="px-4 py-3 font-mono font-bold text-[#003366]"><%= p.getNumDocumento() %></td>
-                                <td class="px-4 py-3 font-semibold text-gray-800"><%= p.getNombreAlumno() %></td>
-                                <td class="px-4 py-3 font-bold text-[#003366]"><%= p.getNombrePeriodo() %></td>
-                                <td class="px-4 py-3 text-gray-600"><%= p.getNombreArea() %></td>
-                                <td class="px-4 py-3 text-gray-600"><%= p.getNombreCarrera() %></td>
-                                <td class="px-4 py-3 text-center space-x-1 whitespace-nowrap">
-                                    <button onclick="abrirModalEditar('<%= p.getIdAlumno() %>', '<%= p.getNumDocumento() %>', '<%= p.getNombreAlumno() %>')" 
-                                            class="bg-[#003366] hover:bg-[#002244] text-white px-2.5 py-1.5 rounded font-bold transition text-xs">
+                            <tr>
+                                <td class="td-bold"><%= p.getIdPostulante() %></td>
+                                <td class="td-bold"><%= p.getNumDocumento() %></td>
+                                <td><%= p.getNombreAlumno() %></td>
+                                <td class="td-bold"><%= p.getNombrePeriodo() %></td>
+                                <td style="color: var(--ink-soft);"><%= p.getNombreArea() %></td>
+                                <td style="color: var(--ink-soft);"><%= p.getNombreCarrera() %></td>
+                                <td style="text-align: right; white-space: nowrap;">
+                                    <button onclick="abrirModalEditar('<%= p.getIdAlumno() %>', '<%= p.getNumDocumento() %>', '<%= p.getNombreAlumno() %>')" class="btn btn-sm btn-navy">
                                         Editar
                                     </button>
                                     
-                                    <form action="${pageContext.request.contextPath}/eliminarAlumno" method="POST" class="inline" onsubmit="return confirm('¿Seguro que desea eliminar esta postulación?');">
+                                    <form action="${pageContext.request.contextPath}/eliminarAlumno" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que desea eliminar esta postulación?');">
                                         <input type="hidden" name="idAlumno" value="<%= p.getIdAlumno() %>">
-                                        <button type="submit" class="btn-danger px-2.5 py-1.5 rounded font-bold transition text-xs">
-                                            Eliminar
-                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-red">Eliminar</button>
                                     </form>
 
-                                    <a href="${pageContext.request.contextPath}/documento?tipo=constancia&dni=<%= p.getNumDocumento() %>" target="_blank" 
-                                       class="bg-[#006633] hover:bg-[#004d26] text-white px-2.5 py-1.5 rounded font-bold transition text-xs">
+                                    <a href="${pageContext.request.contextPath}/documento?tipo=constancia&dni=<%= p.getNumDocumento() %>" target="_blank" class="btn btn-sm btn-green">
                                         Constancia
                                     </a>
                                 </td>
@@ -323,7 +553,7 @@
                         <%  } 
                         } else { %>
                             <tr>
-                                <td colspan="7" class="text-center py-6 text-gray-500 font-medium">No se encontraron estudiantes registrados para el período seleccionado.</td>
+                                <td colspan="7" style="text-align: center; color: var(--ink-soft); padding: 32px;">No se encontraron estudiantes registrados para el período seleccionado.</td>
                             </tr>
                         <% } %>
                     </tbody>
@@ -331,126 +561,105 @@
             </div>
         </div>
 
-    </div>
+    </main>
 
-    <!-- MODAL: NUEVO PERIODO -->
-    <div id="modalNuevoPeriodo" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 border-t-4 border-[#cc9900]">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
-                <h3 class="text-base font-bold text-[#003366] uppercase tracking-wide">Aperturar Nuevo Periodo Académico</h3>
-                <button onclick="toggleModal('modalNuevoPeriodo')" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+    <div id="modalNuevoPeriodo" class="modal-overlay hidden">
+        <div class="modal-content border-gold">
+            <div class="modal-header">
+                <h3 class="modal-title" style="font-family: 'Source Serif 4', serif; color: var(--navy); margin:0;">Aperturar Nuevo Periodo Académico</h3>
+                <button onclick="toggleModal('modalNuevoPeriodo')" class="close-btn">&times;</button>
             </div>
 
-            <form action="${pageContext.request.contextPath}/admin/maestros" method="POST" class="space-y-4">
+            <form action="${pageContext.request.contextPath}/admin/maestros" method="POST">
                 <input type="hidden" name="accion" value="crearPeriodo">
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Nombre de la Convocatoria (*)</label>
-                    <input type="text" name="nombrePeriodo" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent" 
-                           placeholder="Ej: III Simulacro Oficial 2026">
+                <div class="form-row">
+                    <label class="form-label">Nombre de la Convocatoria (*)</label>
+                    <input type="text" name="nombrePeriodo" required class="form-control" placeholder="Ej: III Simulacro Oficial 2026">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="form-grid-2">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Año Lectivo (*)</label>
-                        <input type="number" name="anio" value="2026" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Año Lectivo (*)</label>
+                        <input type="number" name="anio" value="2026" required class="form-control">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Número de Ciclo (*)</label>
-                        <input type="number" name="ciclo" value="3" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Número de Ciclo (*)</label>
+                        <input type="number" name="ciclo" value="3" required class="form-control">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="form-grid-2">
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Inicio Inscripción (*)</label>
-                        <input type="date" name="fechaInicioStr" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Inicio Inscripción (*)</label>
+                        <input type="date" name="fechaInicioStr" required class="form-control">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Fecha del Examen (*)</label>
-                        <input type="date" name="fechaExamenStr" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Fecha del Examen (*)</label>
+                        <input type="date" name="fechaExamenStr" required class="form-control">
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
-                    <button type="button" onclick="toggleModal('modalNuevoPeriodo')" 
-                            class="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 transition">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 btn-primary font-bold rounded text-sm">
-                        Guardar Periodo
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" onclick="toggleModal('modalNuevoPeriodo')" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-navy">Guardar Periodo</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: EDITAR ALUMNO -->
-    <div id="modalEditarAlumno" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 border-t-4 border-[#003366] max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
-                <h3 class="text-base font-bold text-[#003366] uppercase tracking-wide">Edición de Ficha de Estudiante</h3>
-                <button onclick="toggleModal('modalEditarAlumno')" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+    <div id="modalEditarAlumno" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" style="font-family: 'Source Serif 4', serif; color: var(--navy); margin:0;">Edición de Ficha de Estudiante</h3>
+                <button onclick="toggleModal('modalEditarAlumno')" class="close-btn">&times;</button>
             </div>
 
-            <form action="${pageContext.request.contextPath}/editarAlumno" method="POST" class="space-y-4 text-xs">
+            <form action="${pageContext.request.contextPath}/editarAlumno" method="POST">
                 <input type="hidden" id="edit_idAlumno" name="idAlumno">
                 <input type="hidden" id="edit_idPeriodo" name="idPeriodo" value="1">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="form-grid-2">
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Documento de Identidad (DNI) (*)</label>
-                        <input type="text" id="edit_numDocumento" name="numDocumento" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded font-mono text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Documento de Identidad (DNI) (*)</label>
+                        <input type="text" id="edit_numDocumento" name="numDocumento" required class="form-control" style="font-family: monospace;">
                     </div>
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Nombres (*)</label>
-                        <input type="text" id="edit_nombres" name="nombres" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Nombres (*)</label>
+                        <input type="text" id="edit_nombres" name="nombres" required class="form-control">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="form-grid-2">
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Apellido Paterno (*)</label>
-                        <input type="text" id="edit_apPaterno" name="apPaterno" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Apellido Paterno (*)</label>
+                        <input type="text" id="edit_apPaterno" name="apPaterno" required class="form-control">
                     </div>
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Apellido Materno (*)</label>
-                        <input type="text" id="edit_apMaterno" name="apMaterno" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Apellido Materno (*)</label>
+                        <input type="text" id="edit_apMaterno" name="apMaterno" required class="form-control">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="form-grid-3">
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Fecha Nacimiento</label>
-                        <input type="date" id="edit_fechaNacimiento" name="fechaNacimiento" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Fecha Nacimiento</label>
+                        <input type="date" id="edit_fechaNacimiento" name="fechaNacimiento" class="form-control">
                     </div>
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Teléfono / Celular</label>
-                        <input type="text" id="edit_celular" name="celular" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Teléfono / Celular</label>
+                        <input type="text" id="edit_celular" name="celular" class="form-control">
                     </div>
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Correo Electrónico</label>
-                        <input type="email" id="edit_correo" name="correo" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Correo Electrónico</label>
+                        <input type="email" id="edit_correo" name="correo" class="form-control">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-gray-200">
+                <div class="form-grid-3" style="border-top: 1px solid var(--line); padding-top: 16px; margin-top: 8px;">
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Grado Escolar</label>
-                        <select id="edit_idGrado" name="idGrado" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Grado Escolar</label>
+                        <select id="edit_idGrado" name="idGrado" class="form-control">
                             <option value="1">Primer Año</option>
                             <option value="2">Segundo Año</option>
                             <option value="3">Tercer Año</option>
@@ -459,94 +668,76 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Sección</label>
-                        <select id="edit_idSeccion" name="idSeccion" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Sección</label>
+                        <select id="edit_idSeccion" name="idSeccion" class="form-control">
                             <option value="1">Sección A</option>
                             <option value="2">Sección B</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-bold text-[#003366] uppercase mb-1">Carrera Destino (*)</label>
-                        <select id="edit_idCarrera" name="idCarrera" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white font-bold text-[#003366] focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                        <label class="form-label">Carrera Destino (*)</label>
+                        <select id="edit_idCarrera" name="idCarrera" class="form-control" style="color: var(--navy); font-weight: 500;">
                             <option value="1">Medicina Humana</option>
                             <option value="2">Enfermería</option>
-                            <option value="3">Ingeniería de Datos e Inteligencia Artificial</option>
+                            <option value="3">Ingeniería de Datos e IA</option>
                             <option value="4">Ingeniería de Sistemas</option>
                             <option value="5">Derecho</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
-                    <button type="button" onclick="toggleModal('modalEditarAlumno')" 
-                            class="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 transition">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 btn-primary font-bold rounded text-sm">
-                        Guardar Cambios
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" onclick="toggleModal('modalEditarAlumno')" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-navy">Guardar Cambios</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: NUEVA CARRERA -->
-    <div id="modalNuevaCarrera" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 border-t-4 border-[#cc6600]">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
-                <h3 class="text-base font-bold text-[#003366] uppercase tracking-wide">Registrar Nueva Carrera Profesional</h3>
-                <button onclick="toggleModal('modalNuevaCarrera')" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+    <div class="modal-overlay hidden" id="modalNuevaCarrera">
+        <div class="modal-content border-gold">
+            <div class="modal-header">
+                <h3 class="modal-title" style="font-family: 'Source Serif 4', serif; color: var(--navy); margin:0;">Registrar Nueva Carrera Profesional</h3>
+                <button onclick="toggleModal('modalNuevaCarrera')" class="close-btn">&times;</button>
             </div>
 
-            <form action="${pageContext.request.contextPath}/admin/maestros" method="POST" class="space-y-4">
+            <form action="${pageContext.request.contextPath}/admin/maestros" method="POST">
                 <input type="hidden" name="accion" value="crearCarrera">
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Área Académica (*)</label>
-                    <select name="idArea" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                <div class="form-row">
+                    <label class="form-label">Área Académica (*)</label>
+                    <select name="idArea" class="form-control">
                         <option value="1">Biomédicas</option>
                         <option value="2">Ingenierías</option>
                         <option value="3">Sociales</option>
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Nombre de la Carrera (*)</label>
-                    <input type="text" name="nombreCarrera" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent" 
-                           placeholder="Ej: Arquitectura y Urbanismo">
+                <div class="form-row">
+                    <label class="form-label">Nombre de la Carrera (*)</label>
+                    <input type="text" name="nombreCarrera" required class="form-control" placeholder="Ej: Arquitectura y Urbanismo">
                 </div>
 
-                <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
-                    <button type="button" onclick="toggleModal('modalNuevaCarrera')" 
-                            class="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 transition">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 btn-warning font-bold rounded text-sm">
-                        Guardar Carrera
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" onclick="toggleModal('modalNuevaCarrera')" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-gold">Guardar Carrera</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: ASIGNAR AULA -->
-    <div id="modalAsignarAula" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 border-t-4 border-[#003366]">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
-                <h3 class="text-base font-bold text-[#003366] uppercase tracking-wide">Asignación de Aula y Docente Supervisor</h3>
-                <button onclick="toggleModal('modalAsignarAula')" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+    <div id="modalAsignarAula" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" style="font-family: 'Source Serif 4', serif; color: var(--navy); margin:0;">Asignación de Aula y Docente Supervisor</h3>
+                <button onclick="toggleModal('modalAsignarAula')" class="close-btn">&times;</button>
             </div>
 
-            <form action="${pageContext.request.contextPath}/admin/asignarAula" method="POST" class="space-y-4">
+            <form action="${pageContext.request.contextPath}/admin/asignarAula" method="POST">
                 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Seleccionar Convocatoria (*)</label>
-                    <select name="idPeriodo" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white font-bold text-[#003366] focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                <div class="form-row">
+                    <label class="form-label">Seleccionar Convocatoria (*)</label>
+                    <select name="idPeriodo" required class="form-control" style="color: var(--navy); font-weight: 500;">
                         <% if (listaPeriodos != null && !listaPeriodos.isEmpty()) { 
                             for (Periodo per : listaPeriodos) { %>
                                 <option value="<%= per.getIdPeriodo() %>">
@@ -559,10 +750,9 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Docente Supervisor (*)</label>
-                    <select name="idDocente" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white font-semibold focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                <div class="form-row">
+                    <label class="form-label">Docente Supervisor (*)</label>
+                    <select name="idDocente" required class="form-control" style="font-weight: 500;">
                         <% if (listaDocentes != null && !listaDocentes.isEmpty()) { 
                             for (Docente doc : listaDocentes) { %>
                                 <option value="<%= doc.getIdDocente() %>">
@@ -575,31 +765,23 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Pabellón / Bloque (*)</label>
-                    <select name="pabellon" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-white focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                <div class="form-row">
+                    <label class="form-label">Pabellón / Bloque (*)</label>
+                    <select name="pabellon" class="form-control">
                         <option value="Pabellón A - Biomédicas">Pabellón A - Biomédicas</option>
                         <option value="Pabellón B - Ingenierías">Pabellón B - Ingenierías</option>
                         <option value="Pabellón C - Sociales">Pabellón C - Sociales</option>
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-[#003366] mb-1">Número de Aula (*)</label>
-                    <input type="text" name="aula" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#003366] focus:border-transparent" 
-                           placeholder="Ej: Aula 102 - Piso 2">
+                <div class="form-row">
+                    <label class="form-label">Número de Aula (*)</label>
+                    <input type="text" name="aula" required class="form-control" placeholder="Ej: Aula 102 - Piso 2">
                 </div>
 
-                <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
-                    <button type="button" onclick="toggleModal('modalAsignarAula')" 
-                            class="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 transition">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 btn-primary font-bold rounded text-sm">
-                        Registrar Asignación
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" onclick="toggleModal('modalAsignarAula')" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-navy">Registrar Asignación</button>
                 </div>
             </form>
         </div>
